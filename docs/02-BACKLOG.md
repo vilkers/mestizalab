@@ -42,7 +42,7 @@ Legenda: `✅ feito` · `🔵 em aberto` · `⏸ depende do Vilker` · `💭 ide
 |---|---|---|
 | ✅ | **Grid de diagramação no editor** | 6 colunas + 8 linhas + baseline em 24 divisões, dentro da zona segura. Toggles em Formato → Guias. `app/js/editor-stage.js` → `gridSpec()` |
 | ✅ | **Snap às guias** | Imanta borda inicial, centro e borda final na coluna, na linha, na margem e no centro do artboard. Guia dourada acende no eixo que pegou. Alt solta no desktop; toggle no painel para o celular |
-| 🔵 | **Preview de carrossel** | Ver os slides como o Instagram mostra: faixa horizontal deslizante, com as bordas dos vizinhos aparecendo. Hoje só dá pra ver um por vez |
+| ✅ | **Preview de carrossel** | Faixa horizontal com scroll-snap, vizinhos espiando, pontos de posição e contador que segue o scroll. Mostra a legenda cortada em 125 caracteres, onde o feed corta. Abre pelo botão em Conteúdo ou tocando nos pontos do palco. `app/js/views/carrossel-preview.js` |
 | 🔵 | **Pastas / coleções na biblioteca de mídia** | Subir os assets já produzidos, organizados por pasta (cliente, projeto, campanha, ano). Hoje é uma grade cronológica única |
 | 🔵 | **Upload em lote com pasta de destino** | Arrastar 40 fotos de uma campanha e escolher a coleção |
 | 🔵 | **Varredura de bugs e usabilidade pós-entrega** | Rotina formal, ver `06-AGENTES-E-ROTINAS.md` |

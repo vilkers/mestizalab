@@ -13,6 +13,7 @@ import { getTemplate, templatesFor, EDITORIAS } from '../templates.js';
 import { FEATURES, STATUS, LIMITS } from '../config.js';
 import { slideBlob, slideName, shareOrDownload, makeZip, downloadBlob, renderToCanvas, canvasToBlob } from '../export.js';
 import { openMediaPicker } from './midia.js';
+import { abrirPreviewCarrossel } from './carrossel-preview.js';
 import { mountVideoPanel } from './video-panel.js';
 
 export async function renderEditor(container, { go, params }) {
@@ -76,7 +77,11 @@ export async function renderEditor(container, { go, params }) {
     onCommit: () => { markDirty(); if (tab === 'estilo' || tab === 'camadas') drawBody(); },
   });
 
-  const slideDots = el('.ed-slides');
+  const slideDots = el('button.ed-slides', {
+    type: 'button', 'aria-label': 'Ver como aparece no feed',
+    title: 'Ver como aparece no feed',
+    onClick: () => { if (store.slideCount > 1) abrirPreviewCarrossel(store); },
+  });
   const navPrev = el('button.ed-nav.ed-nav--prev', { type: 'button', 'aria-label': 'Slide anterior', onClick: () => { store.goSlide(store.slideIndex - 1); } }, icon('voltar', 18));
   const navNext = el('button.ed-nav.ed-nav--next', { type: 'button', 'aria-label': 'Próximo slide', onClick: () => { store.goSlide(store.slideIndex + 1); } }, icon('seta', 18));
 
@@ -160,6 +165,14 @@ export async function renderEditor(container, { go, params }) {
       else if (slot.type === 'list') bodyEl.appendChild(fieldLista(slot));
       else if (slot.type === 'blocks') bodyEl.appendChild(fieldBlocos(slot));
       else bodyEl.appendChild(fieldTexto(slot));
+    }
+    if (store.slideCount > 1) {
+      bodyEl.appendChild(el('button.btn.btn--block', {
+        type: 'button', style: { marginTop: 'var(--s-5)' },
+        onClick: () => abrirPreviewCarrossel(store),
+      }, icon('grade', 16), 'Ver como aparece no feed'));
+      bodyEl.appendChild(el('p.ed-hint',
+        'Carrossel não se lê um slide por vez. Aqui você vê a sequência inteira, arrastando, com a legenda cortada onde o feed corta.'));
     }
     bodyEl.appendChild(el('button.btn.btn--ghost.btn--block', {
       type: 'button', style: { marginTop: 'var(--s-4)' },

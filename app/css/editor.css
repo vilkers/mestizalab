@@ -102,12 +102,16 @@
   vector-effect: non-scaling-stroke;
 }
 
-/* Indicador de slide do carrossel */
+/* Indicador de slide do carrossel — é também o atalho para o
+   preview, então precisa de alvo de toque de verdade. */
 .ed-slides {
-  position: absolute; left: 0; right: 0; bottom: var(--s-3);
-  display: flex; justify-content: center; gap: 6px;
-  pointer-events: none;
+  position: absolute; left: 50%; transform: translateX(-50%);
+  bottom: 0;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  height: 44px; padding-inline: var(--s-5);
+  background: none; border: 0;
 }
+.ed-slides:active { opacity: 0.6; }
 .ed-slides i {
   width: 16px; height: 2px; background: var(--faint);
   transition: background var(--d-2) var(--ease), width var(--d-2) var(--ease);
@@ -311,6 +315,66 @@
 }
 .ed-textarea:focus { border-color: var(--accent); }
 .ed-textarea--mono { font-family: var(--mono); font-size: 0.9rem; letter-spacing: 0.06em; }
+
+/* ---------------------------------------------------------
+   Preview de carrossel
+   A faixa sangra para fora do gutter da folha: é a borda do
+   próximo slide espiando que faz a pessoa arrastar. Sem isso
+   o preview vira uma lista, não um carrossel.
+   --------------------------------------------------------- */
+.cx-wrap { margin-inline: calc(var(--gutter) * -1); }
+.cx-faixa {
+  display: flex;
+  gap: var(--s-3);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-inline: var(--gutter);
+  padding-block: var(--s-2) var(--s-4);
+}
+.cx-faixa::-webkit-scrollbar { display: none; }
+
+.cx-slide {
+  position: relative;
+  flex: none;
+  width: 78%;
+  max-width: 380px;
+  scroll-snap-align: center;
+  border: 1px solid var(--line);
+  background: var(--bg);
+}
+.cx-slide canvas { width: 100%; height: auto; display: block; }
+.cx-n {
+  position: absolute; top: 8px; left: 8px;
+  padding: 3px 6px;
+  background: rgba(0,0,0,0.72);
+  backdrop-filter: blur(6px);
+  color: var(--fg);
+}
+
+.cx-dots {
+  display: flex; justify-content: center; gap: 5px;
+  padding-block: var(--s-1) var(--s-6);
+}
+.cx-dots i {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--faint);
+  transition: background var(--d-2) var(--ease);
+}
+.cx-dots i.is-on { background: var(--accent); }
+
+.cx-legenda {
+  border-top: 1px solid var(--line);
+  padding-top: var(--s-5);
+}
+.cx-cap {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  margin-bottom: var(--s-3);
+}
+.cx-mais { color: var(--dim); }
 
 /* ---------------------------------------------------------
    Desktop: painel vira coluna lateral
