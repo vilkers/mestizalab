@@ -1,0 +1,128 @@
+# Backlog — tudo que foi pedido
+
+> **Este é o arquivo mais importante do projeto.** Toda ideia, pedido ou
+> decisão entra aqui na mesma sessão em que aparece. Se não está aqui, não
+> existe. Nada se perde numa conversa.
+
+Legenda: `✅ feito` · `🔵 em aberto` · `⏸ depende do Vilker` · `💭 ideia futura`
+
+---
+
+## Fase 1 — a plataforma existe
+
+| | Item | Onde |
+|---|---|---|
+| ✅ | Login com senha, contas por pessoa, admin adiciona/suspende | `worker/src/auth.js` |
+| ✅ | Fila de posts com filtro por status e editoria | `app/js/views/fila.js` |
+| ✅ | 13 templates em 3 editorias | `app/js/templates.js` |
+| ✅ | 7 formatos (feed 4:5, 1:1, 9:16, Stories, Reels, carrossel 4:5 e 1:1) | `app/js/formats.js` |
+| ✅ | Editor visual mobile: toque, arraste, pinça, desfazer/refazer | `app/js/editor-stage.js` |
+| ✅ | Export PNG 0,5× / 1× / 2×, ZIP de carrossel, compartilhamento nativo | `app/js/export.js` |
+| ✅ | Export de vídeo com máscara queimada + áudio, no aparelho | `app/js/video.js` |
+| ✅ | Fallback: PNG transparente da máscara em 1080×1920 | idem |
+| ✅ | Biblioteca de mídia com upload do celular | `app/js/views/midia.js` |
+| ✅ | Legenda + hashtags com contagem e copiar | `app/js/views/editor-view.js` |
+| ✅ | Rota de ingestão do Claude (`POST /api/intake`) | `worker/src/index.js` |
+| ✅ | Aba de briefings recebidos | `app/js/views/briefings.js` |
+| ✅ | Tokens de integração (criar/revogar) | `app/js/views/ajustes.js` |
+| ✅ | Marcação de zona segura, toggle no editor | `app/js/editor-stage.js` |
+| ✅ | Marcação de terços, toggle | idem |
+| ✅ | Miniaturas auto-curáveis na fila | `app/js/views/fila.js` |
+| ✅ | Rascunho local (sobrevive a fechar a aba / perder rede) | `app/js/store.js` |
+| ✅ | Studio (financeiro) como tela-prévia, não como alerta | `app/js/views/admin.js` |
+| ✅ | Redator IA construído atrás de flag, desligado | `app/js/config.js` |
+
+---
+
+## Fase 2 — usabilidade e layout (o próximo trabalho)
+
+### Prioridade alta
+
+| | Item | Nota |
+|---|---|---|
+| 🔵 | **Grid de diagramação no editor** | Grade de colunas/linhas visível e padronizada, com snap. Pedido explícito: "tem que ter grid pra ajudar a layoutar, padronizados". Ver `04-DESIGN-SYSTEM.md` para a especificação da grade |
+| 🔵 | **Snap às guias** | Ao arrastar um elemento, ele imanta na coluna, na baseline e na zona segura. É o que separa "mover na mão" de "diagramar" |
+| 🔵 | **Preview de carrossel** | Ver os slides como o Instagram mostra: faixa horizontal deslizante, com as bordas dos vizinhos aparecendo. Hoje só dá pra ver um por vez |
+| 🔵 | **Pastas / coleções na biblioteca de mídia** | Subir os assets já produzidos, organizados por pasta (cliente, projeto, campanha, ano). Hoje é uma grade cronológica única |
+| 🔵 | **Upload em lote com pasta de destino** | Arrastar 40 fotos de uma campanha e escolher a coleção |
+| 🔵 | **Varredura de bugs e usabilidade pós-entrega** | Rotina formal, ver `06-AGENTES-E-ROTINAS.md` |
+
+### Prioridade média
+
+| | Item | Nota |
+|---|---|---|
+| 🔵 | Réguas com medidas em px ao arrastar | Feedback numérico durante o gesto |
+| 🔵 | Duplicar post | "Fazer outro igual mudando a foto" é o caso mais comum |
+| 🔵 | Duplicar slide dentro do carrossel | |
+| 🔵 | Busca na fila e na biblioteca | |
+| 🔵 | Reordenar slides do carrossel arrastando | Hoje só sobe um por vez |
+| 🔵 | Histórico de versões do post | Voltar a um estado de ontem |
+| 🔵 | Alinhar/distribuir elementos selecionados | |
+| 🔵 | Bloquear camada (evitar mover sem querer) | O schema já prevê `locked` |
+
+### Prioridade baixa / conforto
+
+| | Item |
+|---|---|
+| 🔵 | Modo claro no editor (só o chrome, a peça continua sobre preto) |
+| 🔵 | Atalhos de teclado documentados na interface |
+| 🔵 | Exportar a legenda junto do ZIP, como `.txt` |
+| 🔵 | Marcar post como publicado com data, virar histórico |
+
+---
+
+## Fase 3 — conteúdo e inteligência
+
+| | Item | Nota |
+|---|---|---|
+| ⏸ | **Acertar o visual dos templates** | O Vilker vai mandar referências de diagramação. Os 13 atuais são minha leitura do sistema do site — servem de esqueleto, o desenho final vem das referências dele |
+| ⏸ | **Definir voz, tom e termos** | A definir junto. Esqueleto em `05-VOZ-E-TOM.md` |
+| 🔵 | **Briefing estruturado de verdade** | Um formulário/roteiro de briefing que force especificidade, para o texto não sair óbvio e manjado. Pedido explícito |
+| 🔵 | **Base de conteúdo** | Repositório de temas, ângulos, frases e provas do estúdio, para o redator ter de onde puxar em vez de inventar genérico |
+| 🔵 | Ligar o redator IA | Um secret + uma flag. Custo ~US$ 1–3/mês |
+| 🔵 | Rotina de geração de conteúdo automatizada | Ver `06-AGENTES-E-ROTINAS.md` |
+| ⏸ | **Nova editoria** | O Vilker terá uma editoria com templates próprios. Já é dado: `EDITORIAS` em `templates.js` + tabela `editorias` no D1 |
+
+---
+
+## Fase 4 — o produto
+
+| | Item | Nota |
+|---|---|---|
+| 💭 | **Guide de marca virtual vendável** | O produto de verdade. Cliente recebe um guide interativo e monta conteúdo dentro dele. Mestiza é o piloto. Ver `07-GUIDE-DE-MARCA.md` |
+| 💭 | Multi-marca na mesma plataforma | Cada cliente com sua paleta, tipos, templates e assets |
+| 💭 | Papéis por marca (dono, editor, visualizador) | |
+| 💭 | Domínio próprio por cliente | |
+| 💭 | Cobrança / assinatura | |
+| 💭 | Migrar para hospedagem própria | O Vilker tem uma hospedagem. Ver nota abaixo |
+
+---
+
+## Satélite — não faz parte do produto
+
+| | Item | Nota |
+|---|---|---|
+| 💭 | **Módulo financeiro do estúdio** | Contas a pagar, recebimentos, gastos, fechamento, orçamentos. **Explicitamente fora do produto** — vive na plataforma só por conveniência do Vilker, em módulo isolado que não pode complicar a estrutura nem aparecer para cliente. Hoje existe como tela-prévia |
+
+---
+
+## Comunicação e material
+
+| | Item | Nota |
+|---|---|---|
+| 🔵 | **Manual de uso** | Página dentro da plataforma, não só arquivo. Esqueleto em `09-MANUAL.md` |
+| 🔵 | **Pitch da ferramenta** | Peça refinada com prints, mostrando por que vale a pena. Serve para a equipe, para clientes e para o produto futuro |
+
+---
+
+## Notas soltas registradas
+
+- **Hospedagem própria:** o Vilker tem uma hospedagem que pode receber isso no
+  futuro. A arquitetura atual (Worker + D1 + R2) é Cloudflare-específica.
+  Migrar exige trocar D1 por Postgres/MySQL e R2 por S3 ou disco — o app em si
+  (HTML/CSS/JS puro, sem build) roda em qualquer lugar. **Antes de migrar,
+  levantar o que a hospedagem oferece:** Node? PHP? banco? object storage?
+- **Referência de comportamento:** `paulkalkbrenner.net` — bloqueado pelo proxy
+  desta sessão em duas tentativas. Ver `03-PENDENCIAS.md`.
+- **Evolução contínua:** revisar este arquivo a cada sessão, confirmar que nada
+  do que foi pedido saiu, e acrescentar o que apareceu.

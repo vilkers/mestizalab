@@ -1,5 +1,13 @@
 # Mestiza Lab — contexto do projeto
 
+> **Antes de qualquer trabalho, leia [`docs/README.md`](docs/README.md)** — ele
+> diz onde o projeto está, o que está aberto e o que depende do Vilker.
+> Todo pedido novo entra em [`docs/02-BACKLOG.md`](docs/02-BACKLOG.md) na mesma
+> sessão em que aparece. Nada vive só na conversa.
+>
+> Agentes deste projeto (em `.claude/agents/`): `diretor-de-arte`,
+> `qa-mestiza`, `redator-mestiza`, `template-smith`.
+
 Plataforma de criação de conteúdo do estúdio **Mestiza** (`mestiza.work`).
 Interlocutor: **Vilker Silva**, diretor de arte publicitário sênior.
 
