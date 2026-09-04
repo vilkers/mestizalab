@@ -58,7 +58,7 @@ maior do que é. Nunca usar mono para corpo de texto, nunca serif para label.
 border-radius   0        quina viva. Editorial, não app-store
 hairline        1px      #232323 — é estrutura, não decoração
 easing          cubic-bezier(0.16, 1, 0.3, 1)     expo-out, a curva da casa
-durações        180 / 320 / 620 / 900ms
+durações        160 / 300 / 480 / 620ms   — ver §4, andamento de ferramenta
 ```
 
 ---
