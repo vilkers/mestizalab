@@ -11,15 +11,25 @@
 
 ## Onde estamos
 
-**Fase 1 concluída e publicada** (não deployada ainda — o código está pronto,
-falta o Vilker rodar o `DEPLOY.md`).
+**Fase 1 completa. Fase 2 com os três itens de prioridade alta entregues.**
+Nada foi deployado ainda — o código está pronto, falta o Vilker rodar o
+[`DEPLOY.md`](../DEPLOY.md), ~15 minutos.
 
-A plataforma existe e funciona ponta a ponta: login com senha, fila de posts,
-13 templates, 7 formatos, editor visual mobile, export PNG/ZIP, export de vídeo
-com máscara queimada, biblioteca de mídia, e a rota que deixa o Claude criar
+Funciona ponta a ponta: login com senha, fila de posts, 13 templates, 7
+formatos, editor visual mobile, export PNG/ZIP, export de vídeo com máscara
+queimada, biblioteca de mídia com coleções, e a rota que deixa o Claude criar
 posts direto na fila a partir de um briefing.
 
-**Próximo passo imediato:** Fase 2 — ver [`01-FASES.md`](01-FASES.md).
+Da Fase 2 já entraram: **grade de 6 colunas com imã**, **preview de carrossel
+como o feed mostra**, e **coleções na biblioteca**.
+
+**Próximo passo imediato:** o que sobrou da Fase 2 — varredura de bugs
+(`qa-mestiza`), duplicar post/slide, reordenar slides arrastando, busca. Ver
+[`02-BACKLOG.md`](02-BACKLOG.md).
+
+**Trava tudo o que for calibragem visual:** os screenshots do
+`paulkalkbrenner.net`, que o proxy desta sessão bloqueou. Ver
+[`03-PENDENCIAS.md`](03-PENDENCIAS.md).
 
 ---
 
