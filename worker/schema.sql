@@ -112,6 +112,27 @@ CREATE INDEX IF NOT EXISTS idx_media_em      ON media(criado_em DESC);
 CREATE INDEX IF NOT EXISTS idx_media_colecao ON media(colecao);
 
 -- ---------------------------------------------------------
+-- Blobs — armazenamento de arquivo SEM o R2
+--
+-- Quebra-galho deliberado: enquanto o bucket R2 não estiver
+-- ativado (ele exige cartão, mesmo no plano gratuito), os
+-- arquivos vivem aqui. O app não sabe a diferença. Quando o
+-- R2 entrar, os novos vão para lá e estes continuam servindo
+-- normalmente — não há migração a fazer.
+--
+-- Teto de 800 KB por arquivo, garantido no Worker. O app
+-- reduz as fotos antes de enviar, então isso quase nunca
+-- aparece para o usuário.
+-- ---------------------------------------------------------
+CREATE TABLE IF NOT EXISTS blobs (
+  chave     TEXT PRIMARY KEY,
+  mime      TEXT NOT NULL DEFAULT '',
+  tamanho   INTEGER NOT NULL DEFAULT 0,
+  dados     BLOB NOT NULL,
+  criado_em TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ---------------------------------------------------------
 -- Briefings — o que chega do Claude
 -- ---------------------------------------------------------
 CREATE TABLE IF NOT EXISTS briefings (

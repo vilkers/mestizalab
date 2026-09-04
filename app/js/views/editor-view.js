@@ -10,7 +10,7 @@ import { PostStore, draft, session } from '../store.js';
 import { Stage } from '../editor-stage.js';
 import { getFormat, isVideoFormat, FORMAT_LIST } from '../formats.js';
 import { getTemplate, templatesFor, EDITORIAS } from '../templates.js';
-import { FEATURES, STATUS, LIMITS } from '../config.js';
+import { FEATURES, STATUS } from '../config.js';
 import { slideBlob, slideName, shareOrDownload, makeZip, downloadBlob, renderToCanvas, canvasToBlob } from '../export.js';
 import { openMediaPicker } from './midia.js';
 import { abrirPreviewCarrossel } from './carrossel-preview.js';

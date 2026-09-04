@@ -9,9 +9,10 @@ import {
   cookieSessao, cookieLimpo, uid, criarToken, autenticarToken,
   podeTentar, registrarFalha, limparFalhas,
 } from './auth.js';
+import {
+  guardar, remover, servir, backendDe, suportaVideo, limiteBytes, uso as usoArmazenamento,
+} from './storage.js';
 
-const LIMITE_IMAGEM = 12 * 1024 * 1024;
-const LIMITE_VIDEO = 200 * 1024 * 1024;
 const MIMES_IMAGEM = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
 const MIMES_VIDEO = ['video/mp4', 'video/quicktime', 'video/webm'];
 
@@ -85,7 +86,7 @@ async function rotear(req, env, ctx, caminho, url) {
 
   /* ---------- arquivos do R2 (público para quem tem o link) ---------- */
   if (caminho.startsWith('/files/')) {
-    return servirArquivo(env, caminho.slice('/files/'.length), req);
+    return servir(env, caminho.slice('/files/'.length), req);
   }
 
   /* ---------- primeiro acesso ----------
@@ -182,7 +183,23 @@ async function rotear(req, env, ctx, caminho, url) {
 
   if (caminho === '/me' && m === 'GET') {
     const eds = await db.prepare('SELECT id, nome, kicker, descricao FROM editorias WHERE ativa = 1 ORDER BY ordem').all();
-    return json({ user: { id: user.id, email: user.email, nome: user.nome, role: user.role }, editorias: eds.results });
+    // O app precisa saber o que este servidor consegue fazer:
+    // sem R2 não há upload de vídeo, e as imagens são reduzidas
+    // mais agressivamente antes de subir.
+    return json({
+      user: { id: user.id, email: user.email, nome: user.nome, role: user.role },
+      editorias: eds.results,
+      recursos: {
+        armazenamento: backendDe(env),
+        video: suportaVideo(env),
+        limiteImagem: limiteBytes(env, 'image'),
+        limiteVideo: limiteBytes(env, 'video'),
+      },
+    });
+  }
+
+  if (caminho === '/armazenamento' && m === 'GET') {
+    return json(await usoArmazenamento(env));
   }
 
   if (caminho === '/editorias' && m === 'GET') {
@@ -248,7 +265,7 @@ async function rotear(req, env, ctx, caminho, url) {
     if (m === 'DELETE') {
       const p = await db.prepare('SELECT thumb FROM posts WHERE id = ?').bind(id).first();
       await db.prepare('DELETE FROM posts WHERE id = ?').bind(id).run();
-      if (p?.thumb) ctx.waitUntil(env.MEDIA.delete(`thumbs/${id}.jpg`).catch(() => {}));
+      if (p?.thumb) ctx.waitUntil(remover(env, `thumbs/${id}.jpg`).catch(() => {}));
       return json({ ok: true });
     }
   }
@@ -259,11 +276,15 @@ async function rotear(req, env, ctx, caminho, url) {
     const fd = await req.formData();
     const f = fd.get('file');
     if (!f || typeof f === 'string') return erro(400, 'Arquivo ausente.');
-    if (f.size > 2 * 1024 * 1024) return erro(413, 'Miniatura grande demais.');
+    if (f.size > 400 * 1024) return erro(413, 'Miniatura grande demais.');
     const chave = `thumbs/${id}.jpg`;
-    await env.MEDIA.put(chave, f.stream(), {
-      httpMetadata: { contentType: 'image/jpeg', cacheControl: 'public, max-age=60' },
-    });
+    try {
+      await guardar(env, chave, f, { mime: 'image/jpeg', cacheControl: 'public, max-age=60' });
+    } catch (e) {
+      // Miniatura é conforto, não função. Falhar aqui não pode
+      // fazer o salvamento do post parecer que deu errado.
+      return json({ thumb: null, aviso: e.message });
+    }
     const urlThumb = `${base(env, url)}/files/${chave}?v=${Date.now().toString(36)}`;
     await db.prepare("UPDATE posts SET thumb = ? WHERE id = ?").bind(urlThumb, id).run();
     return json({ thumb: urlThumb });
@@ -304,30 +325,44 @@ async function rotear(req, env, ctx, caminho, url) {
     const ehImagem = MIMES_IMAGEM.includes(mime);
     const ehVideo = MIMES_VIDEO.includes(mime) || mime.startsWith('video/');
     if (!ehImagem && !ehVideo) return erro(415, 'Formato não aceito. Use JPG, PNG, WebP, MP4 ou MOV.');
-    const limite = ehVideo ? LIMITE_VIDEO : LIMITE_IMAGEM;
-    if (f.size > limite) return erro(413, `Arquivo maior que ${Math.round(limite / 1048576)} MB.`);
+
+    if (ehVideo && !suportaVideo(env)) {
+      return erro(501, 'Upload de vídeo precisa do R2 ativado. Enquanto isso, use a saída em PNG da máscara e componha o clipe no CapCut.');
+    }
+    const limite = limiteBytes(env, ehVideo ? 'video' : 'image');
+    if (f.size > limite) {
+      return erro(413, limite < 1048576
+        ? `Arquivo maior que ${Math.round(limite / 1024)} KB. Sem o R2 ativado esse é o teto por arquivo.`
+        : `Arquivo maior que ${Math.round(limite / 1048576)} MB.`);
+    }
 
     const colecao = String(fd.get('colecao') || '').slice(0, 80).trim();
     const id = uid('med_');
     const ext = extDe(f.name, mime);
     const chave = `${ehVideo ? 'video' : 'img'}/${new Date().toISOString().slice(0, 7)}/${id}.${ext}`;
 
-    await env.MEDIA.put(chave, f.stream(), {
-      httpMetadata: {
-        contentType: mime,
-        // Imutável: a chave contém um id único, então nunca
-        // muda de conteúdo. Isso zera requisição repetida.
-        cacheControl: 'public, max-age=31536000, immutable',
-      },
-    });
+    try {
+      // Imutável: a chave contém um id único, então o conteúdo
+      // nunca muda. Isso zera requisição repetida.
+      await guardar(env, chave, f, { mime, cacheControl: 'public, max-age=31536000, immutable' });
+    } catch (e) {
+      return erro(e.status || 500, e.message);
+    }
+
+    const larg = parseInt(fd.get('largura') || '0', 10) || null;
+    const alt = parseInt(fd.get('altura') || '0', 10) || null;
 
     await db.prepare(`
-      INSERT INTO media (id, chave, nome, mime, tipo, tamanho, colecao, criado_por)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `).bind(id, chave, (f.name || '').slice(0, 200), mime, ehVideo ? 'video' : 'image', f.size, colecao, user.id).run();
+      INSERT INTO media (id, chave, nome, mime, tipo, tamanho, largura, altura, colecao, criado_por)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(id, chave, (f.name || '').slice(0, 200), mime, ehVideo ? 'video' : 'image', f.size, larg, alt, colecao, user.id).run();
 
     return json({
-      media: { id, chave, nome: f.name, mime, tipo: ehVideo ? 'video' : 'image', tamanho: f.size, colecao, url: `${base(env, url)}/files/${chave}` },
+      media: {
+        id, chave, nome: f.name, mime, tipo: ehVideo ? 'video' : 'image',
+        tamanho: f.size, largura: larg, altura: alt, colecao,
+        url: `${base(env, url)}/files/${chave}`,
+      },
     }, { status: 201 });
   }
 
@@ -346,7 +381,7 @@ async function rotear(req, env, ctx, caminho, url) {
     const row = await db.prepare('SELECT chave FROM media WHERE id = ?').bind(mm[1]).first();
     if (!row) return erro(404, 'Não encontrado.');
     await db.prepare('DELETE FROM media WHERE id = ?').bind(mm[1]).run();
-    ctx.waitUntil(env.MEDIA.delete(row.chave).catch(() => {}));
+    ctx.waitUntil(remover(env, row.chave).catch(() => {}));
     return json({ ok: true });
   }
 
@@ -551,33 +586,4 @@ function extDe(nome, mime) {
   })[mime] || 'bin';
 }
 
-/**
- * Entrega do R2 com Range e ETag.
- * Range não é luxo aqui: sem ele o <video> em iOS não
- * consegue buscar e o clipe simplesmente não toca.
- */
-async function servirArquivo(env, chave, req) {
-  if (!chave || chave.includes('..')) return new Response('Não encontrado', { status: 404 });
 
-  const range = req.headers.get('Range');
-  const obj = await env.MEDIA.get(chave, range ? { range: req.headers } : undefined);
-  if (!obj) return new Response('Não encontrado', { status: 404 });
-
-  const h = new Headers();
-  obj.writeHttpMetadata(h);
-  h.set('etag', obj.httpEtag);
-  h.set('Accept-Ranges', 'bytes');
-  // Sem CORS aqui o canvas fica "tainted" e o export de PNG
-  // falha. É a linha que faz o botão Exportar funcionar.
-  h.set('Access-Control-Allow-Origin', '*');
-  h.set('Cross-Origin-Resource-Policy', 'cross-origin');
-  if (!h.has('Cache-Control')) h.set('Cache-Control', 'public, max-age=31536000, immutable');
-
-  if (obj.range && obj.size != null) {
-    const inicio = obj.range.offset ?? 0;
-    const tam = obj.range.length ?? obj.size - inicio;
-    h.set('Content-Range', `bytes ${inicio}-${inicio + tam - 1}/${obj.size}`);
-    return new Response(obj.body, { status: 206, headers: h });
-  }
-  return new Response(obj.body, { headers: h });
-}

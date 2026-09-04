@@ -189,14 +189,25 @@ async function boot() {
     let precisa = false;
     try { precisa = (await api.precisaSetup()).necessario === true; } catch {}
     hideBoot();
-    const entrar = async (user) => { session.set(user); await afterLogin(); };
+    const entrar = async (user) => {
+      session.set(user);
+      // O /me traz as capacidades do servidor (tem R2? aceita
+      // vídeo?). Sem isso o app chutaria e mostraria botão que
+      // não funciona.
+      try {
+        const eu = await api.me();
+        session.set(eu.user, eu.recursos);
+        session.editorias = eu.editorias || null;
+      } catch {}
+      await afterLogin();
+    };
     if (precisa) renderSetup(root, { onSuccess: entrar });
     else renderGate(root, { onSuccess: entrar });
     return;
   }
 
   hideBoot();
-  session.set(me.user);
+  session.set(me.user, me.recursos);
   session.editorias = me.editorias || null;
   await afterLogin();
 }

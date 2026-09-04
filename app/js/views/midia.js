@@ -10,7 +10,8 @@
 
 import { el, clear, icon, iconBtn, toast, sheet, confirmSheet, fmtBytes, fmtDate } from '../ui.js';
 import { api } from '../api.js';
-import { LIMITS } from '../config.js';
+import { session } from '../store.js';
+import { prepararImagem, PERFIS, fmtKB } from '../imagem.js';
 
 /* ---------------------------------------------------------
    Coleções
@@ -120,9 +121,13 @@ export function uploadControl({ onDone, accept = 'image/*', tipo = 'image', getC
     el('div', { style: { color: 'var(--fg)', marginBottom: 'var(--s-2)' } }, icon('baixar', 24)),
     el('p.micro', { style: { marginBottom: 'var(--s-1)' } }, tipo === 'image' ? 'Subir fotos' : 'Subir vídeo'),
     el('p.nano', tipo === 'image'
-      ? `JPG, PNG ou WebP · até ${LIMITS.imageMB} MB · dá pra soltar várias de uma vez`
-      : `MP4, MOV ou WebM · até ${LIMITS.videoMB} MB`),
-    tipo === 'image' ? el('p.ed-hint', { style: { marginTop: 'var(--s-3)' } }, alvo) : null,
+      ? 'JPG, PNG ou WebP · dá pra soltar várias de uma vez'
+      : 'MP4, MOV ou WebM'),
+    tipo === 'image'
+      ? el('p.ed-hint', { style: { marginTop: 'var(--s-2)' } },
+          'O app reduz a foto antes de enviar — a peça tem 1080px, então subir 4000px só gastaria seus dados.')
+      : null,
+    tipo === 'image' ? el('p.ed-hint', { style: { marginTop: 'var(--s-2)' } }, alvo) : null,
   );
 
   function atualizarAlvo() {
@@ -141,18 +146,33 @@ export function uploadControl({ onDone, accept = 'image/*', tipo = 'image', getC
     const label = el('p.ed-hint');
     status.append(el('.progress', bar), label);
 
+    const perfil = session.temR2 ? PERFIS.r2 : PERFIS.d1;
     const enviados = [];
+    let economizado = 0;
+
     for (let i = 0; i < list.length; i++) {
-      const f = list[i];
-      const maxMB = tipo === 'image' ? LIMITS.imageMB : LIMITS.videoMB;
-      if (f.size > maxMB * 1048576) {
-        toast(`${f.name} tem ${fmtBytes(f.size)} — o limite é ${maxMB} MB.`, 'bad');
+      let f = list[i];
+      let largura = null, altura = null;
+
+      if (tipo === 'image') {
+        label.textContent = `${i + 1} de ${list.length} — preparando ${f.name}`;
+        try {
+          const r = await prepararImagem(f, perfil);
+          if (r.reduziu) economizado += r.de - r.para;
+          f = r.file; largura = r.largura; altura = r.altura;
+        } catch (e) {
+          toast(`${list[i].name}: ${e.message}`, 'bad');
+          continue;
+        }
+      } else if (f.size > session.recursos.limiteVideo) {
+        toast(`${f.name} tem ${fmtBytes(f.size)} — acima do limite deste servidor.`, 'bad');
         continue;
       }
-      label.textContent = `${i + 1} de ${list.length} — ${f.name}`;
+
+      label.textContent = `${i + 1} de ${list.length} — enviando ${f.name}`;
       try {
         const r = await api.uploadMedia(f, {
-          colecao,
+          colecao, largura, altura,
           onProgress: (p) => { bar.style.width = `${Math.round(((i + p) / list.length) * 100)}%`; },
         });
         enviados.push(r.media);
@@ -163,7 +183,8 @@ export function uploadControl({ onDone, accept = 'image/*', tipo = 'image', getC
     clear(status);
     if (enviados.length) {
       toast(
-        `${enviados.length} ${enviados.length > 1 ? 'arquivos enviados' : 'arquivo enviado'}${colecao ? ' em ' + colecao : ''}.`,
+        `${enviados.length} ${enviados.length > 1 ? 'arquivos enviados' : 'arquivo enviado'}${colecao ? ' em ' + colecao : ''}`
+        + (economizado > 200 * 1024 ? ` · ${fmtKB(economizado)} a menos de dados` : '.'),
         'gold',
       );
       onDone && onDone(enviados);
@@ -255,6 +276,7 @@ export async function renderMidia(container, { setHeader }) {
       el('.reveal', el('h1.h1.page-title', 'Mídia')),
       el('p.page-sub', 'Tudo que você sobe fica disponível pra equipe inteira, em qualquer post. Organize por cliente, projeto ou campanha.'),
     ),
+    avisoArmazenamento(),
     barra.node,
     el('.sec', el('span.micro', 'Subir'), el('.line')),
     btnDestino,
@@ -357,4 +379,20 @@ export function openMediaPicker({ onPick } = {}) {
     actions: confirmar,
   });
   return s;
+}
+
+
+/* ---------------------------------------------------------
+   Diz a verdade sobre onde os arquivos estão indo.
+   --------------------------------------------------------- */
+function avisoArmazenamento() {
+  if (session.temR2) return null;
+  return el('.cap-note', { style: { marginBottom: 'var(--s-5)' } },
+    el('strong', 'Modo sem R2. '),
+    'As fotos ficam guardadas no próprio banco — grátis e sem cartão. ',
+    'O app reduz cada uma para caber, o que é o certo de qualquer jeito: a peça final tem 1080px. ',
+    el('strong', 'Vídeo não sobe neste modo'),
+    ' — o export de Reels continua funcionando com a máscara em PNG. ',
+    'Quando quiser ativar o R2, é descomentar três linhas no wrangler.toml e publicar; nada mais muda.',
+  );
 }

@@ -11,7 +11,10 @@ pelo navegador do celular.
 
 # Caminho A — pelo celular, sem terminal
 
-Uns 20 minutos. Você só clica e copia/cola.
+Uns 15 minutos. Você só clica e copia/cola. **Não pede cartão em nenhum
+momento** — Workers e D1 são gratuitos sem cadastro de pagamento.
+
+Cinco passos: conta → banco → colar um código → publicar → criar seu login.
 
 ## 1. Criar a conta na Cloudflare
 
@@ -31,18 +34,7 @@ No menu, procure **Storage & Databases → D1** (em algumas contas aparece como
 - Ainda nessa tela, **copie o `Database ID`** — um código tipo
   `a1b2c3d4-5e6f-...`. Você vai precisar dele no passo 4.
 
-## 3. Criar o bucket de mídia
-
-No menu, **R2 Object Storage** → **Create bucket** → nome:
-`mestiza-lab-media`.
-
-> **Aviso honesto:** para ativar o R2 a Cloudflare costuma pedir um cartão,
-> mesmo no plano gratuito. Nada é cobrado dentro dos 10 GB e da saída
-> ilimitada — o cartão fica só como cadastro. Se preferir não cadastrar agora,
-> me avise: dá para publicar sem o R2 e a plataforma funciona inteira, menos o
-> upload de mídia.
-
-## 4. Colar o Database ID no projeto
+## 3. Colar o Database ID no projeto
 
 O arquivo `wrangler.toml`, na raiz do repositório, tem esta linha:
 
@@ -57,7 +49,7 @@ Troque pelo ID que você copiou no passo 2.
 
 **Ou mais simples:** cole o ID na conversa comigo e eu edito e envio.
 
-## 5. Publicar
+## 4. Publicar
 
 No menu, **Compute (Workers)** → **Create** → aba **Import a repository**
 (ou "Connect to Git").
@@ -74,7 +66,7 @@ Ao final ele mostra o endereço, algo como:
 https://mestiza-lab.<sua-conta>.workers.dev
 ```
 
-## 6. Criar o seu login
+## 5. Criar o seu login
 
 Abra esse endereço no celular. Vai aparecer a tela **Primeiro acesso** —
 preencha nome, e-mail e senha, e você já entra.
@@ -98,7 +90,6 @@ npm install
 npx wrangler login
 
 npx wrangler d1 create mestiza-lab        # cole o database_id no wrangler.toml
-npx wrangler r2 bucket create mestiza-lab-media
 npx wrangler d1 execute mestiza-lab --remote --file=worker/schema.sql
 npx wrangler deploy
 ```
@@ -107,6 +98,37 @@ Abra o endereço que ele imprimir e crie seu login na tela de primeiro acesso.
 
 *(Se preferir criar o usuário pelo terminal em vez da tela:
 `node worker/seed-admin.mjs "seu@email.com" "Seu Nome"` gera o comando pronto.)*
+
+---
+
+## Onde as fotos ficam guardadas
+
+**Por padrão, no próprio banco (D1).** Grátis, sem cartão, sem nada a
+configurar. O app reduz cada foto antes de enviar — uma imagem de 3,7 MB e
+4000px sai como 240 KB e 1800px, que é mais do que a peça de 1080px precisa.
+
+Nesse modo:
+
+| | |
+|---|---|
+| ✅ | Fotos, coleções, todos os templates, todos os formatos |
+| ✅ | Export de PNG e de carrossel em `.zip` |
+| ✅ | Máscara de Reels em PNG transparente 1080×1920 |
+| ❌ | Upload de vídeo — o clipe não tem onde morar |
+| ❌ | Arquivos acima de 800 KB |
+
+### Ligar o R2 depois (opcional)
+
+Se um dia quiser subir vídeo ou tirar o teto de tamanho:
+
+1. No painel: **R2 Object Storage** → **Create bucket** → `mestiza-lab-media`
+   *(a Cloudflare costuma pedir cartão para ativar o R2, mesmo no plano
+   gratuito — nada é cobrado dentro dos 10 GB, mas o cadastro é exigido)*
+2. No `wrangler.toml`, descomente as três linhas do bloco `[[r2_buckets]]`
+3. Publique
+
+As fotos que já estavam no banco continuam funcionando — não há migração a
+fazer, o servidor procura nos dois lugares.
 
 ---
 
@@ -215,4 +237,8 @@ eles o Safari não consegue buscar dentro do arquivo.
 
 **O deploy falhou no painel**
 Veja o log do build. O erro mais comum é o `database_id` ainda estar como
-`SUBSTITUA_PELO_ID_DO_D1` (passo 4).
+`SUBSTITUA_PELO_ID_DO_D1` (passo 3).
+
+**"Sem o R2 ativado, cada arquivo pode ter no máximo 800 KB"**
+Uma imagem que o app não conseguiu reduzir o bastante — costuma ser PNG com
+transparência muito grande. Salve como JPG e suba de novo, ou ative o R2.

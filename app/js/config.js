@@ -34,12 +34,15 @@ export const FEATURES = {
   video: true,        // editor de vídeo com máscara
 };
 
-/** Limites de upload — espelham o que o Worker aceita. */
-export const LIMITS = {
-  imageMB: 12,
-  videoMB: 200,
-  imageTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/avif'],
-  videoTypes: ['video/mp4', 'video/quicktime', 'video/webm'],
+/**
+ * Tipos aceitos. Os LIMITES de tamanho não moram aqui: eles
+ * dependem do servidor (com R2 ou sem) e chegam pelo /me, em
+ * `session.recursos`. Duplicar número de limite no cliente é
+ * receita para mensagem de erro mentindo.
+ */
+export const TIPOS = {
+  imagem: ['image/jpeg', 'image/png', 'image/webp', 'image/avif'],
+  video: ['video/mp4', 'video/quicktime', 'video/webm'],
 };
 
 export const STATUS = {

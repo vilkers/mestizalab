@@ -7,6 +7,7 @@
 import { el, clear, icon, toast, confirmSheet } from '../ui.js';
 import { uploadControl } from './midia.js';
 import { api } from '../api.js';
+import { session } from '../store.js';
 import {
   loadVideo, startPreview, burnIn, maskPNG, videoSupport, fmtDuration, seek,
 } from '../video.js';
@@ -16,6 +17,46 @@ import { downloadBlob, shareOrDownload, slideName } from '../export.js';
 export function mountVideoPanel(bodyEl, { store, stage, markDirty }) {
   const sup = videoSupport();
   const framing = store.video?.framing || { fx: 0.5, fy: 0.5, zoom: 1 };
+
+  /* ---------- servidor sem armazenamento de vídeo ---------- */
+  // Sem o R2 ativado o clipe não tem onde morar. Em vez de
+  // mostrar um botão que vai falhar, dizemos o que dá pra
+  // fazer — que continua sendo bastante.
+  if (!store.video?.src && !session.recursos.video) {
+    bodyEl.append(
+      el('.cap-note',
+        el('strong', 'Upload de vídeo precisa do R2 ativado. '),
+        'Ele não está — por escolha, para a plataforma não pedir cartão. Isso não impede o trabalho:',
+      ),
+      el('ul.flist', { style: { marginTop: 'var(--s-4)' } },
+        el('li', el('span.idx.n', '01'), el('div',
+          el('div', { style: { fontSize: '1.02rem', fontWeight: 500 } }, 'Baixe a máscara em PNG'),
+          el('.d', 'Transparente, 1080×1920, com a moldura e a manchete deste template já compostas.'))),
+        el('li', el('span.idx.n', '02'), el('div',
+          el('div', { style: { fontSize: '1.02rem', fontWeight: 500 } }, 'Ponha por cima do clipe'),
+          el('.d', 'No CapCut ou no Premiere, como uma camada. Leva 30 segundos e o resultado é idêntico.'))),
+        el('li', el('span.idx.n', '03'), el('div',
+          el('div', { style: { fontSize: '1.02rem', fontWeight: 500 } }, 'A legenda fica aqui'),
+          el('.d', 'Escreva na aba Legenda e copie com um toque na hora de publicar.'))),
+      ),
+      el('button.btn.btn--solid.btn--block', {
+        type: 'button', style: { marginTop: 'var(--s-6)' },
+        onClick: exportarMascaraSemClipe,
+      }, icon('baixar', 16), 'Baixar a máscara em PNG'),
+    );
+
+    async function exportarMascaraSemClipe() {
+      try {
+        const { maskPNG } = await import('../video.js');
+        const { shareOrDownload, slideName } = await import('../export.js');
+        const blob = await maskPNG(store.doc, { scale: 1 });
+        const nome = slideName(store, 0, 'png').replace('.png', '-mascara.png');
+        await shareOrDownload([blob], [nome], { title: 'Máscara' });
+        toast('Máscara salva. Ela é transparente — é só pôr por cima do clipe.', 'gold');
+      } catch (e) { toast(e.message, 'bad'); }
+    }
+    return;
+  }
 
   /* ---------- sem clipe ainda ---------- */
   if (!store.video?.src) {

@@ -48,9 +48,25 @@ binding = "DB"
 database_name = "mestiza-lab"
 database_id = "local-dev-placeholder"
 
-[[r2_buckets]]
-binding = "MEDIA"
-bucket_name = "mestiza-lab-media"
+# ---------------------------------------------------------
+# R2 — armazenamento de midia. COMENTADO de proposito.
+#
+# A Cloudflare costuma pedir cartao para ativar o R2, mesmo no
+# plano gratuito. Sem ele a plataforma funciona inteira: as
+# imagens ficam numa tabela do proprio D1 (ver worker/src/
+# storage.js), com teto de 800 KB por arquivo — o app reduz as
+# fotos antes de enviar, entao isso quase nunca aparece.
+#
+# O que NAO funciona sem R2: upload de video. O export de
+# video continua funcionando com a mascara em PNG.
+#
+# Quando ativar o R2, descomente as tres linhas abaixo e
+# publique. Nada mais muda, e os arquivos ja subidos continuam
+# sendo servidos normalmente.
+#
+# [[r2_buckets]]
+# binding = "MEDIA"
+# bucket_name = "mestiza-lab-media"
 
 [vars]
 # Deixe vazio em producao (mesma origem). Preencha so para

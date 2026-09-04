@@ -68,12 +68,15 @@ export const api = {
   updateMedia: (id, data) => request(`/media/${id}`, { method: 'PUT', body: data }),
   deleteMedia: (id) => request(`/media/${id}`, { method: 'DELETE' }),
   listColecoes: () => request('/colecoes'),
+  armazenamento: () => request('/armazenamento'),
   /** Upload com progresso — fetch não expõe progresso de envio, então XHR. */
-  uploadMedia(file, { onProgress, signal, colecao } = {}) {
+  uploadMedia(file, { onProgress, signal, colecao, largura, altura } = {}) {
     return new Promise((resolve, reject) => {
       const fd = new FormData();
       fd.append('file', file, file.name);
       if (colecao) fd.append('colecao', colecao);
+      if (largura) fd.append('largura', String(largura));
+      if (altura) fd.append('altura', String(altura));
       const xhr = new XMLHttpRequest();
       xhr.open('POST', API_BASE + '/media');
       xhr.withCredentials = true;

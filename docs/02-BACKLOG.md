@@ -33,6 +33,9 @@ Legenda: `✅ feito` · `🔵 em aberto` · `⏸ depende do Vilker` · `💭 ide
 | ✅ | Redator IA construído atrás de flag, desligado | `app/js/config.js` |
 | ✅ | **Tela de primeiro acesso** | Cria o primeiro administrador pelo navegador, sem terminal. A rota fecha sozinha assim que existe um usuário. É o que permite publicar tudo pelo celular | `app/js/views/setup.js` |
 | ✅ | `wrangler.toml` na raiz | Necessário para o deploy conectado ao GitHub funcionar sem configuração |
+| ✅ | **Armazenamento sem R2** | O R2 exige cartão. Abstração em `worker/src/storage.js`: com o binding usa R2, sem ele guarda numa tabela `blobs` do D1. O app não sabe a diferença e não há migração ao trocar |
+| ✅ | **Redução de imagem no cliente** | Foto de 3,7 MB / 4032px vira 240 KB / 1800px antes de subir. Trata orientação EXIF e preserva PNG com transparência. Vale com ou sem R2 — a peça tem 1080px, subir 4000px só gasta dados |
+| ✅ | Capacidades vindas do servidor | `/me` devolve `recursos` (tem R2? aceita vídeo? qual o teto). O app nunca chuta limite |
 
 ---
 

@@ -265,8 +265,21 @@ function deepMerge(base, patch) {
 export const session = {
   user: null,
   editorias: null,
-  set(user) { this.user = user; },
+  /* O que ESTE servidor consegue fazer. Vem do /me e muda
+     conforme o R2 estiver ativado ou não. O app nunca deve
+     supor: sempre perguntar aqui. */
+  recursos: {
+    armazenamento: 'd1',
+    video: false,
+    limiteImagem: 800 * 1024,
+    limiteVideo: 0,
+  },
+  set(user, recursos) {
+    this.user = user;
+    if (recursos) Object.assign(this.recursos, recursos);
+  },
   get isAdmin() { return this.user?.role === 'admin'; },
+  get temR2() { return this.recursos.armazenamento === 'r2'; },
 };
 
 /* =========================================================
