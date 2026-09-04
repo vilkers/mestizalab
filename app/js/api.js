@@ -47,6 +47,10 @@ async function request(path, { method = 'GET', body, headers = {}, raw = false, 
 }
 
 export const api = {
+  /* --- primeiro acesso --- */
+  precisaSetup: () => request('/setup'),
+  setup: (dados) => request('/setup', { method: 'POST', body: dados }),
+
   /* --- sessão --- */
   login: (email, senha) => request('/auth/login', { method: 'POST', body: { email, senha } }),
   logout: () => request('/auth/logout', { method: 'POST' }),

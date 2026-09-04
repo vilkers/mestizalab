@@ -1,6 +1,12 @@
 #=========================================================
 # Mestiza Lab — Worker
 #
+# Este arquivo fica na RAIZ do repositorio de proposito: o
+# deploy conectado ao GitHub (Cloudflare Workers Builds) usa
+# a raiz como contexto, e os arquivos do app (`app/`) ficam
+# fora da pasta `worker/`. Com o wrangler.toml aqui, publicar
+# pelo painel funciona sem configurar nada.
+#
 # Antes do primeiro deploy, troque `database_id` pelo valor
 # que este comando gera:
 #
@@ -8,12 +14,12 @@
 #   npx wrangler r2 bucket create mestiza-lab-media
 #
 # Depois:
-#   npx wrangler d1 execute mestiza-lab --remote --file=schema.sql
+#   npx wrangler d1 execute mestiza-lab --remote --file=worker/schema.sql
 #   npx wrangler deploy
 #=========================================================
 
 name = "mestiza-lab"
-main = "src/index.js"
+main = "worker/src/index.js"
 compatibility_date = "2025-09-01"
 
 # O app e a API sao UM Worker so.
@@ -26,7 +32,7 @@ compatibility_date = "2025-09-01"
 # Os arquivos estaticos sao servidos primeiro; o que nao
 # casar com nenhum arquivo cai no Worker, que responde /api/*.
 [assets]
-directory = "../app"
+directory = "app"
 binding = "ASSETS"
 not_found_handling = "none"
 
@@ -40,7 +46,7 @@ not_found_handling = "none"
 [[d1_databases]]
 binding = "DB"
 database_name = "mestiza-lab"
-database_id = "SUBSTITUA_PELO_ID_DO_D1"   # ver DEPLOY.md, passo 2
+database_id = "local-dev-placeholder"
 
 [[r2_buckets]]
 binding = "MEDIA"

@@ -46,6 +46,10 @@ worker/                 a API (Cloudflare Worker)
   src/index.js          rotas
   src/auth.js           senha, sessão, tokens
   schema.sql            banco D1
+  migrations/           mudanças de estrutura, uma por arquivo
+
+wrangler.toml           na RAIZ: é o que faz o deploy pelo painel da
+                        Cloudflare funcionar sem configurar nada
 ```
 
 ### As três decisões que sustentam tudo
@@ -88,16 +92,14 @@ precisa delas carregadas para exportar, e FOUT em editor visual é inaceitável.
 ## Rodar localmente
 
 ```bash
-cd worker
 npm install
-npx wrangler d1 execute mestiza-lab --local --file=schema.sql
-node seed-admin.mjs "seu@email.com" "Seu Nome"     # gera o SQL do admin
-npx wrangler d1 execute mestiza-lab --local --command "<cole o SQL aqui>"
+npx wrangler d1 execute mestiza-lab --local --file=worker/schema.sql
 npx wrangler dev
 ```
 
-Abre em `http://127.0.0.1:8787`. O Worker serve o app e a API na mesma origem —
-é por isso que o cookie de sessão funciona sem CORS.
+Abre em `http://127.0.0.1:8787` e cai na tela de primeiro acesso, onde você
+cria o login. O Worker serve o app e a API na mesma origem — é por isso que o
+cookie de sessão funciona sem CORS.
 
 ## Publicar
 

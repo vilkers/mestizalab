@@ -31,6 +31,8 @@ Legenda: `✅ feito` · `🔵 em aberto` · `⏸ depende do Vilker` · `💭 ide
 | ✅ | Rascunho local (sobrevive a fechar a aba / perder rede) | `app/js/store.js` |
 | ✅ | Studio (financeiro) como tela-prévia, não como alerta | `app/js/views/admin.js` |
 | ✅ | Redator IA construído atrás de flag, desligado | `app/js/config.js` |
+| ✅ | **Tela de primeiro acesso** | Cria o primeiro administrador pelo navegador, sem terminal. A rota fecha sozinha assim que existe um usuário. É o que permite publicar tudo pelo celular | `app/js/views/setup.js` |
+| ✅ | `wrangler.toml` na raiz | Necessário para o deploy conectado ao GitHub funcionar sem configuração |
 
 ---
 

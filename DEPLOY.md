@@ -1,123 +1,122 @@
 # Publicar o Mestiza Lab
 
-Leva uns 15 minutos na primeira vez. Depois, publicar uma mudança é **um comando**.
+Dois caminhos. **O primeiro não precisa de computador** — dá para fazer tudo
+pelo navegador do celular.
 
-Você precisa de: uma conta na Cloudflare (grátis) e o terminal do Mac.
-
----
-
-## 0. Conta na Cloudflare
-
-Se ainda não tem: <https://dash.cloudflare.com/sign-up>. Plano gratuito.
-Não precisa cadastrar cartão para nada do que está aqui.
+> **Por que não dá pra usar o GitHub Pages:** ele só serve arquivos parados. A
+> plataforma precisa de senha de verdade, banco, upload de mídia e a rota que o
+> Claude usa — isso exige um servidor. A Cloudflare roda isso de graça.
 
 ---
 
-## 1. Entrar pelo terminal
+# Caminho A — pelo celular, sem terminal
 
-```bash
-cd mestizalab/worker
-npm install
-npx wrangler login
+Uns 20 minutos. Você só clica e copia/cola.
+
+## 1. Criar a conta na Cloudflare
+
+<https://dash.cloudflare.com/sign-up> — e-mail e senha, plano gratuito.
+
+## 2. Criar o banco de dados
+
+No menu, procure **Storage & Databases → D1** (em algumas contas aparece como
+"D1 SQL Database").
+
+- **Create database** → nome: `mestiza-lab` → criar
+- Abra o banco criado e vá na aba **Console**
+- Cole ali o conteúdo inteiro do arquivo `worker/schema.sql` deste repositório
+  e execute
+  *(no celular: abra o arquivo no GitHub, toque nos três pontinhos → "Copy raw
+  file", e cole)*
+- Ainda nessa tela, **copie o `Database ID`** — um código tipo
+  `a1b2c3d4-5e6f-...`. Você vai precisar dele no passo 4.
+
+## 3. Criar o bucket de mídia
+
+No menu, **R2 Object Storage** → **Create bucket** → nome:
+`mestiza-lab-media`.
+
+> **Aviso honesto:** para ativar o R2 a Cloudflare costuma pedir um cartão,
+> mesmo no plano gratuito. Nada é cobrado dentro dos 10 GB e da saída
+> ilimitada — o cartão fica só como cadastro. Se preferir não cadastrar agora,
+> me avise: dá para publicar sem o R2 e a plataforma funciona inteira, menos o
+> upload de mídia.
+
+## 4. Colar o Database ID no projeto
+
+O arquivo `wrangler.toml`, na raiz do repositório, tem esta linha:
+
+```toml
+database_id = "SUBSTITUA_PELO_ID_DO_D1"
 ```
 
-Abre o navegador, você autoriza, volta pro terminal.
+Troque pelo ID que você copiou no passo 2.
 
----
+**Pelo celular:** abra o `wrangler.toml` no GitHub → ícone de lápis → edite →
+**Commit changes**.
 
-## 2. Criar o banco e o bucket
-
-```bash
-npx wrangler d1 create mestiza-lab
-```
-
-Ele responde com um bloco parecido com isto:
-
-```
-[[d1_databases]]
-binding = "DB"
-database_name = "mestiza-lab"
-database_id = "a1b2c3d4-...."     ← este valor
-```
-
-**Copie o `database_id`** e cole no arquivo `worker/wrangler.toml`, na linha que
-hoje diz `database_id = "local-dev-placeholder"`.
-
-Depois o bucket de mídia:
-
-```bash
-npx wrangler r2 bucket create mestiza-lab-media
-```
-
----
-
-## 3. Criar as tabelas
-
-```bash
-npx wrangler d1 execute mestiza-lab --remote --file=schema.sql
-```
-
----
-
-## 4. Criar o seu usuário
-
-```bash
-node seed-admin.mjs "vilkervs@gmail.com" "Vilker Silva"
-```
-
-Ele pede a senha e imprime um comando pronto. **Copie e rode esse comando.**
-
-A senha nunca é escrita em arquivo nenhum — o que vai pro banco é o hash
-PBKDF2 dela.
-
----
+**Ou mais simples:** cole o ID na conversa comigo e eu edito e envio.
 
 ## 5. Publicar
 
-```bash
-npx wrangler deploy
-```
+No menu, **Compute (Workers)** → **Create** → aba **Import a repository**
+(ou "Connect to Git").
 
-Pronto. Ele imprime o endereço, algo como:
+- Autorize o GitHub e escolha o repositório `vilkers/mestizalab`
+- Em **branch**, escolha a branch onde está o código
+- Deixe as configurações de build como vieram — o `wrangler.toml` na raiz já
+  diz tudo
+- **Deploy**
+
+Ao final ele mostra o endereço, algo como:
 
 ```
 https://mestiza-lab.<sua-conta>.workers.dev
 ```
 
-Abre no celular, entra com o e-mail e a senha do passo 4.
+## 6. Criar o seu login
 
-**Adicione à tela de início** (Safari → Compartilhar → Adicionar à Tela de
-Início). Ele abre em tela cheia, sem barra de navegador, com cara de app.
+Abra esse endereço no celular. Vai aparecer a tela **Primeiro acesso** —
+preencha nome, e-mail e senha, e você já entra.
+
+> Faça isso **logo depois de publicar**. Essa tela existe enquanto não houver
+> ninguém cadastrado; assim que você criar seu login, ela fecha para sempre.
+
+Depois: **Compartilhar → Adicionar à Tela de Início**. Abre em tela cheia, com
+cara de app.
 
 ---
 
-## 6. Domínio próprio (opcional)
+# Caminho B — pelo terminal do Mac
 
-Se quiser em `lab.mestiza.work` em vez do `.workers.dev`:
+Uns 15 minutos, se você já usa terminal.
 
-1. O domínio `mestiza.work` precisa estar com o DNS na Cloudflare
-2. Descomente estas linhas no `worker/wrangler.toml`:
+```bash
+git clone https://github.com/vilkers/mestizalab
+cd mestizalab
+npm install
+npx wrangler login
 
-```toml
-[[routes]]
-pattern = "lab.mestiza.work/*"
-zone_name = "mestiza.work"
+npx wrangler d1 create mestiza-lab        # cole o database_id no wrangler.toml
+npx wrangler r2 bucket create mestiza-lab-media
+npx wrangler d1 execute mestiza-lab --remote --file=worker/schema.sql
+npx wrangler deploy
 ```
 
-3. `npx wrangler deploy`
+Abra o endereço que ele imprimir e crie seu login na tela de primeiro acesso.
 
-O `mestiza.work` continua no GitHub Pages normalmente — só o subdomínio `lab`
-aponta para cá.
+*(Se preferir criar o usuário pelo terminal em vez da tela:
+`node worker/seed-admin.mjs "seu@email.com" "Seu Nome"` gera o comando pronto.)*
 
 ---
 
 ## Migrações do banco
 
 Quando um deploy trouxer mudança de estrutura no banco, ela vem como arquivo em
-`worker/migrations/`. Rode uma vez cada:
+`worker/migrations/`. Rode uma vez cada — pelo Console do D1 no painel, ou:
 
 ```bash
-npx wrangler d1 execute mestiza-lab --remote --file=migrations/001-colecoes.sql
+npx wrangler d1 execute mestiza-lab --remote --file=worker/migrations/001-colecoes.sql
 ```
 
 Se você está criando o banco agora pelo `schema.sql`, **não precisa rodar
@@ -127,21 +126,37 @@ nenhuma migração** — o schema já vem completo.
 
 ## Publicar uma mudança depois
 
-```bash
-cd mestizalab/worker && npx wrangler deploy
+**Caminho A:** nada a fazer. Todo push na branch conectada publica sozinho.
+
+**Caminho B:** `npx wrangler deploy` na raiz do projeto.
+
+---
+
+## Domínio próprio (opcional)
+
+Para ficar em `lab.mestiza.work` em vez do `.workers.dev`:
+
+1. O domínio `mestiza.work` precisa estar com o DNS na Cloudflare
+2. No painel do Worker: **Settings → Domains & Routes → Add custom domain**
+3. Ou descomente no `wrangler.toml`:
+
+```toml
+[[routes]]
+pattern = "lab.mestiza.work/*"
+zone_name = "mestiza.work"
 ```
 
-Só isso. O app e a API vão juntos, no mesmo comando.
+O `mestiza.work` continua no GitHub Pages normalmente — só o subdomínio `lab`
+aponta para cá.
 
 ---
 
 ## Adicionar as outras pessoas
 
-Depois de entrar, vá em **Ajustes → Pessoas → Adicionar pessoa**. O app sugere
-uma senha provisória fácil de ditar (`estudio-craft-luz-42`). Mande por canal
-privado — a pessoa troca depois.
-
-Se marcar **Administrador**, ela também pode adicionar gente.
+Dentro do app: **Ajustes → Pessoas → Adicionar pessoa**. Ele sugere uma senha
+provisória fácil de ditar (`estudio-craft-luz-42`). Mande por canal privado — a
+pessoa troca depois. Marcando **Administrador**, ela também pode adicionar
+gente.
 
 ---
 
@@ -155,22 +170,18 @@ Se marcar **Administrador**, ela também pode adicionar gente.
 
 ## Ligar o redator automático (quando quiser)
 
-Hoje ele está desligado para não gerar custo. Para ligar:
+Hoje está desligado para não gerar custo.
 
-```bash
-cd worker
-npx wrangler secret put ANTHROPIC_API_KEY
-# cola a chave criada em console.anthropic.com
-```
+**No painel:** Worker → Settings → **Variables and Secrets** → adicione um
+secret `ANTHROPIC_API_KEY` com a chave criada em console.anthropic.com.
 
-E em `app/js/config.js`, troque `redator: false` por `redator: true`.
-`npx wrangler deploy` e pronto. Custo estimado: US$ 1–3/mês no seu volume.
-
-A chave fica como secret do Worker — nunca no código, nunca no navegador.
+Depois, em `app/js/config.js`, troque `redator: false` por `redator: true`.
+Custo estimado: US$ 1–3/mês no seu volume. A chave fica como secret do Worker —
+nunca no código, nunca no navegador.
 
 ---
 
-## Quanto isso custa de verdade
+## Quanto custa
 
 | Recurso | Grátis até | Seu uso provável |
 |---|---|---|
@@ -179,26 +190,29 @@ A chave fica como secret do Worker — nunca no código, nunca no navegador.
 | R2 (mídia) | 10 GB + saída ilimitada | anos de fotos |
 | Deploy | ilimitado | — |
 
-Se um dia estourar, o próximo degrau é US$ 5/mês. Não existe cobrança
-surpresa: a conta gratuita **para de servir** em vez de virar fatura, a menos
-que você mesmo habilite o plano pago.
+Se um dia estourar, o próximo degrau é US$ 5/mês. A conta gratuita **para de
+servir** em vez de virar fatura, a menos que você habilite o plano pago.
 
 ---
 
 ## Se der problema
 
+**A tela de primeiro acesso não aparece, aparece o login**
+Já existe alguém cadastrado. Use o login, ou apague pelo Console do D1
+(`DELETE FROM users;`) e recarregue.
+
 **"Não autenticado" logo depois de entrar**
-O app e a API precisam estar na mesma origem. Se você separou os dois, o cookie
-não viaja. Mantenha o `[assets]` no `wrangler.toml` — é o que garante isso.
+O app e a API precisam estar na mesma origem. Mantenha o bloco `[assets]` no
+`wrangler.toml` — é o que garante isso.
 
 **Imagem não aparece no post exportado**
-O `Access-Control-Allow-Origin` no `/api/files/*` é o que impede o canvas de
+O `Access-Control-Allow-Origin` em `/api/files/*` é o que impede o canvas de
 ficar "tainted". Não remova essa linha do Worker.
 
 **Vídeo não toca no iPhone**
-O `Accept-Ranges` e a resposta `206` no `/api/files/*` são obrigatórios: sem
-eles o Safari não consegue buscar dentro do arquivo e o clipe não roda.
+O `Accept-Ranges` e a resposta `206` em `/api/files/*` são obrigatórios: sem
+eles o Safari não consegue buscar dentro do arquivo.
 
-**Erro de espaço no R2**
-`npx wrangler r2 object list mestiza-lab-media` mostra o que está lá. Mídia
-apagada pelo app sai do bucket junto.
+**O deploy falhou no painel**
+Veja o log do build. O erro mais comum é o `database_id` ainda estar como
+`SUBSTITUA_PELO_ID_DO_D1` (passo 4).

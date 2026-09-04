@@ -5,9 +5,9 @@
   "scripts": {
     "dev": "wrangler dev --port 8787",
     "deploy": "wrangler deploy",
-    "db:init": "wrangler d1 execute mestiza-lab --remote --file=schema.sql",
-    "db:init:local": "wrangler d1 execute mestiza-lab --local --file=schema.sql",
-    "admin": "node seed-admin.mjs"
+    "db:init": "wrangler d1 execute mestiza-lab --remote --file=worker/schema.sql",
+    "db:init:local": "wrangler d1 execute mestiza-lab --local --file=worker/schema.sql",
+    "admin": "node worker/seed-admin.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.42.0"

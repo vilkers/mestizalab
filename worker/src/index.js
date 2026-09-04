@@ -88,6 +88,41 @@ async function rotear(req, env, ctx, caminho, url) {
     return servirArquivo(env, caminho.slice('/files/'.length), req);
   }
 
+  /* ---------- primeiro acesso ----------
+     Existe para que ninguem precise de terminal para criar o
+     primeiro administrador. A rota so responde enquanto a
+     tabela de usuarios estiver VAZIA: no instante em que o
+     primeiro login existe, ela fecha sozinha e passa a
+     devolver 409 para sempre. */
+  if (caminho === '/setup' && m === 'GET') {
+    const n = await db.prepare('SELECT COUNT(*) AS n FROM users').first();
+    return json({ necessario: (n?.n || 0) === 0 });
+  }
+
+  if (caminho === '/setup' && m === 'POST') {
+    const n = await db.prepare('SELECT COUNT(*) AS n FROM users').first();
+    if ((n?.n || 0) > 0) return erro(409, 'A plataforma já foi configurada.');
+
+    const b = await req.json().catch(() => ({}));
+    const email = String(b.email || '').toLowerCase().trim();
+    const nome = String(b.nome || '').slice(0, 120).trim();
+    if (!email.includes('@')) return erro(400, 'E-mail inválido.');
+    if (String(b.senha || '').length < 8) return erro(400, 'A senha precisa de pelo menos 8 caracteres.');
+
+    const id = uid('usr_');
+    await db.prepare(
+      "INSERT INTO users (id, email, nome, senha_hash, role) VALUES (?, ?, ?, ?, 'admin')"
+    ).bind(id, email, nome, await hashSenha(b.senha)).run();
+
+    // Ja entra logado: pedir para a pessoa fazer login logo
+    // depois de escolher a senha e atrito sem motivo.
+    const { token, expira } = await criarSessao(db, id, req.headers.get('User-Agent'));
+    return json(
+      { user: { id, email, nome, role: 'admin' } },
+      { status: 201, headers: { 'Set-Cookie': cookieSessao(token, expira, { seguro: seguro(req) }) } },
+    );
+  }
+
   /* ---------- login ---------- */
   if (caminho === '/auth/login' && m === 'POST') {
     const { email, senha } = await req.json().catch(() => ({}));

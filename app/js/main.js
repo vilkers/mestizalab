@@ -13,6 +13,7 @@ import { APP, FEATURES } from './config.js';
 import { ensureFonts } from './renderer.js';
 
 import { renderGate } from './views/gate.js';
+import { renderSetup } from './views/setup.js';
 import { renderFila } from './views/fila.js';
 import { renderNovo } from './views/novo.js';
 import { renderEditor } from './views/editor-view.js';
@@ -180,15 +181,21 @@ async function boot() {
     if (e.status !== 401 && e.status !== 0) console.warn(e);
   }
 
-  hideBoot();
-
+  // Plataforma recém-publicada, sem ninguém cadastrado: em vez
+  // de uma tela de login que ainda não aceita ninguém, mostramos
+  // o primeiro acesso. É o que permite publicar e configurar
+  // tudo pelo celular, sem terminal.
   if (!me || !me.user) {
-    renderGate(root, { onSuccess: async (user) => {
-      session.set(user);
-      await afterLogin();
-    } });
+    let precisa = false;
+    try { precisa = (await api.precisaSetup()).necessario === true; } catch {}
+    hideBoot();
+    const entrar = async (user) => { session.set(user); await afterLogin(); };
+    if (precisa) renderSetup(root, { onSuccess: entrar });
+    else renderGate(root, { onSuccess: entrar });
     return;
   }
+
+  hideBoot();
   session.set(me.user);
   session.editorias = me.editorias || null;
   await afterLogin();
