@@ -264,7 +264,7 @@ export async function renderEditor(container, { go, params }) {
           }, 'Remover') : null,
         ),
       ),
-      src ? el('p.nano', { style: { marginTop: 'var(--s-2)' } }, 'Arraste na imagem pra reenquadrar. Pinça dá zoom.') : null,
+      src ? el('p.ed-hint', 'Arraste na imagem pra reenquadrar. Pinça dá zoom.') : null,
     );
   }
 
@@ -368,7 +368,7 @@ export async function renderEditor(container, { go, params }) {
         ),
       ),
     ));
-    bodyEl.appendChild(el('p.nano', { style: { marginTop: 'var(--s-4)' } },
+    bodyEl.appendChild(el('p.ed-hint',
       'Toque duplo direto na peça devolve um elemento ao original.'));
   }
 
@@ -432,7 +432,7 @@ export async function renderEditor(container, { go, params }) {
             onClick: () => { store.setFormato(f.id); refreshAll(); stage.fit(); },
           }, f.name)),
         ),
-        el('p.nano', { style: { marginTop: 'var(--s-2)' } }, getFormat(store.formato).hint),
+        el('p.ed-hint', getFormat(store.formato).hint),
       ),
       el('.ed-field',
         el('label', el('span.micro', 'Trocar desenho'), el('span.val', tpl.name)),
@@ -468,15 +468,21 @@ export async function renderEditor(container, { go, params }) {
         ),
       ),
       el('.ed-field',
-        el('label', el('span.micro', 'Guias')),
-        el('.row', { style: { gap: 'var(--s-2)' } },
-          el(`button.btn.btn--sm.grow${stage.guides.safe ? '.btn--solid' : ''}`, {
-            type: 'button', onClick: (e) => { stage.guides.safe = !stage.guides.safe; stage.drawOverlay(); e.currentTarget.classList.toggle('btn--solid'); },
-          }, 'Zona segura'),
-          el(`button.btn.btn--sm.grow${stage.guides.thirds ? '.btn--solid' : ''}`, {
-            type: 'button', onClick: (e) => { stage.guides.thirds = !stage.guides.thirds; stage.drawOverlay(); e.currentTarget.classList.toggle('btn--solid'); },
-          }, 'Terços'),
+        el('label', el('span.micro', 'Guias'), el('span.val', 'diagramação')),
+        el('.row', { style: { gap: 'var(--s-2)', marginBottom: 'var(--s-2)' } },
+          guia('Zona segura', 'safe'),
+          guia('Grade', 'grid'),
         ),
+        el('.row', { style: { gap: 'var(--s-2)', marginBottom: 'var(--s-2)' } },
+          guia('Terços', 'thirds'),
+          guia('Baseline', 'baseline'),
+        ),
+        el('.row', { style: { gap: 'var(--s-2)' } },
+          guia('Imã', 'snap'),
+          el('span.grow'),
+        ),
+        el('p.ed-hint',
+          'Grade de 6 colunas dentro da zona segura. Com o imã ligado, o que você arrasta encosta na coluna, na linha e na margem — a guia dourada mostra onde. No computador, segure Alt para soltar.'),
       ),
       el('button.btn.btn--danger.btn--block', {
         type: 'button', style: { marginTop: 'var(--s-6)' },
@@ -490,6 +496,19 @@ export async function renderEditor(container, { go, params }) {
         },
       }, 'Apagar post'),
     );
+  }
+
+  /** Botão de guia — o estado visual É o estado da guia. */
+  function guia(rotulo, chave) {
+    const b = el(`button.btn.btn--sm.grow${stage.guides[chave] ? '.btn--solid' : ''}`, {
+      type: 'button',
+      onClick: () => {
+        stage.guides[chave] = !stage.guides[chave];
+        b.classList.toggle('btn--solid', stage.guides[chave]);
+        stage.drawOverlay();
+      },
+    }, rotulo);
+    return b;
   }
 
   /* =========================================================

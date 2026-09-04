@@ -40,8 +40,8 @@ Legenda: `✅ feito` · `🔵 em aberto` · `⏸ depende do Vilker` · `💭 ide
 
 | | Item | Nota |
 |---|---|---|
-| 🔵 | **Grid de diagramação no editor** | Grade de colunas/linhas visível e padronizada, com snap. Pedido explícito: "tem que ter grid pra ajudar a layoutar, padronizados". Ver `04-DESIGN-SYSTEM.md` para a especificação da grade |
-| 🔵 | **Snap às guias** | Ao arrastar um elemento, ele imanta na coluna, na baseline e na zona segura. É o que separa "mover na mão" de "diagramar" |
+| ✅ | **Grid de diagramação no editor** | 6 colunas + 8 linhas + baseline em 24 divisões, dentro da zona segura. Toggles em Formato → Guias. `app/js/editor-stage.js` → `gridSpec()` |
+| ✅ | **Snap às guias** | Imanta borda inicial, centro e borda final na coluna, na linha, na margem e no centro do artboard. Guia dourada acende no eixo que pegou. Alt solta no desktop; toggle no painel para o celular |
 | 🔵 | **Preview de carrossel** | Ver os slides como o Instagram mostra: faixa horizontal deslizante, com as bordas dos vizinhos aparecendo. Hoje só dá pra ver um por vez |
 | 🔵 | **Pastas / coleções na biblioteca de mídia** | Subir os assets já produzidos, organizados por pasta (cliente, projeto, campanha, ano). Hoje é uma grade cronológica única |
 | 🔵 | **Upload em lote com pasta de destino** | Arrastar 40 fotos de uma campanha e escolher a coleção |

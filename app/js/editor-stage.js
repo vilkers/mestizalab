@@ -38,7 +38,12 @@ export class Stage {
     this.wrap.className = 'ed-canvas-wrap';
     this.wrap.append(this.canvas, this.overlay);
 
-    this.guides = { safe: true, thirds: false };
+    // Grade e imã. `grid` desligado por padrão: quem só preenche
+    // template não precisa vê-la; quem vai diagramar liga.
+    // `snap` LIGADO por padrão — imantar é o comportamento que
+    // as pessoas esperam mesmo sem saber que existe.
+    this.guides = { safe: true, thirds: false, grid: false, baseline: false, snap: true };
+    this._snapAtivo = { x: null, y: null };
     this._raf = 0;
     this._pending = false;
     this._bind();
@@ -118,9 +123,104 @@ export class Stage {
     });
   }
 
+  /**
+   * A grade vive DENTRO da zona segura, não do artboard.
+   * É o que faz a mesma grade servir 4:5 e Stories sem virar
+   * outra grade. Spec em docs/04-DESIGN-SYSTEM.md.
+   */
+  gridSpec(fmt) {
+    const s = safeBox(fmt);
+    const cols = 6;
+    const gutter = 0.022;                       // fração da LARGURA
+    const colW = (s.w - gutter * (cols - 1)) / cols;
+    // A calha vertical vale o mesmo em PIXELS, não em fração —
+    // senão em 9:16 ela ficaria quase o dobro da horizontal.
+    const gutterY = gutter * (fmt.w / fmt.h);
+    const rows = fmt.h / fmt.w > 1.2 ? 8 : 6;
+    const rowH = (s.h - gutterY * (rows - 1)) / rows;
+    // Baseline como fração da ALTURA ÚTIL, não da largura.
+    // Em fração da largura ela virava ~75 linhas num 4:5 e o
+    // canvas lia como textura, não como ritmo. 24 divisões é
+    // o que se enxerga como grade.
+    return { safe: s, cols, rows, gutter, gutterY, colW, rowH,
+             baseline: s.h / 24 };
+  }
+
+  /** Linhas verticais em que um elemento pode imantar. */
+  _alvosX(fmt) {
+    const g = this.gridSpec(fmt);
+    const out = [g.safe.x, g.safe.x + g.safe.w, 0.5];
+    for (let i = 0; i < g.cols; i++) {
+      const x = g.safe.x + i * (g.colW + g.gutter);
+      out.push(x, x + g.colW);
+    }
+    return out;
+  }
+
+  _alvosY(fmt) {
+    const g = this.gridSpec(fmt);
+    const out = [g.safe.y, g.safe.y + g.safe.h, 0.5];
+    for (let i = 0; i < g.rows; i++) {
+      const y = g.safe.y + i * (g.rowH + g.gutterY);
+      out.push(y, y + g.rowH);
+    }
+    if (this.guides.baseline) {
+      for (let y = g.safe.y; y <= g.safe.y + g.safe.h + 1e-6; y += g.baseline) out.push(y);
+    }
+    return out;
+  }
+
+  /**
+   * Imanta uma das três referências da caixa (borda inicial,
+   * centro, borda final) ao alvo mais próximo. Devolve o
+   * deslocamento a aplicar e a linha que deve acender.
+   */
+  _imantar(pos, tam, alvos, tol) {
+    let melhor = null;
+    for (const a of alvos) {
+      for (const [ref, delta] of [[pos, 0], [pos + tam / 2, tam / 2], [pos + tam, tam]]) {
+        const d = Math.abs(ref - a);
+        if (d < tol && (!melhor || d < melhor.d)) melhor = { d, pos: a - delta, guia: a };
+      }
+    }
+    return melhor;
+  }
+
   drawOverlay() {
     const fmt = getFormat(this.store.formato);
     while (this.overlay.firstChild) this.overlay.removeChild(this.overlay.firstChild);
+
+    // A grade entra ANTES da zona segura para ficar por baixo:
+    // a régua dourada da safe tem que continuar sendo a mais
+    // legível das guias.
+    if (this.guides.grid) {
+      const g = this.gridSpec(fmt);
+      for (let i = 0; i < g.cols; i++) {
+        const x = (g.safe.x + i * (g.colW + g.gutter)) * fmt.w;
+        const r = document.createElementNS(NS, 'rect');
+        r.setAttribute('class', 'col');
+        r.setAttribute('x', x); r.setAttribute('y', g.safe.y * fmt.h);
+        r.setAttribute('width', g.colW * fmt.w); r.setAttribute('height', g.safe.h * fmt.h);
+        this.overlay.appendChild(r);
+      }
+      for (let i = 1; i < g.rows; i++) {
+        const y = (g.safe.y + i * (g.rowH + g.gutterY) - g.gutterY / 2) * fmt.h;
+        const l = document.createElementNS(NS, 'line');
+        l.setAttribute('class', 'rowline');
+        l.setAttribute('x1', g.safe.x * fmt.w); l.setAttribute('x2', (g.safe.x + g.safe.w) * fmt.w);
+        l.setAttribute('y1', y); l.setAttribute('y2', y);
+        this.overlay.appendChild(l);
+      }
+      if (this.guides.baseline) {
+        for (let y = g.safe.y; y <= g.safe.y + g.safe.h + 1e-6; y += g.baseline) {
+          const l = document.createElementNS(NS, 'line');
+          l.setAttribute('class', 'baseline');
+          l.setAttribute('x1', g.safe.x * fmt.w); l.setAttribute('x2', (g.safe.x + g.safe.w) * fmt.w);
+          l.setAttribute('y1', y * fmt.h); l.setAttribute('y2', y * fmt.h);
+          this.overlay.appendChild(l);
+        }
+      }
+    }
 
     if (this.guides.safe) {
       const s = safeBox(fmt);
@@ -156,6 +256,23 @@ export class Stage {
       r.setAttribute('x', b.x * fmt.w); r.setAttribute('y', b.y * fmt.h);
       r.setAttribute('width', b.w * fmt.w); r.setAttribute('height', (b.h || 0.05) * fmt.h);
       this.overlay.appendChild(r);
+    }
+
+    // A guia de imã é a única que grita. As outras existem
+    // para serem ignoradas até você precisar delas.
+    if (this._snapAtivo.x != null) {
+      const l = document.createElementNS(NS, 'line');
+      l.setAttribute('class', 'snap');
+      l.setAttribute('x1', this._snapAtivo.x * fmt.w); l.setAttribute('x2', this._snapAtivo.x * fmt.w);
+      l.setAttribute('y1', 0); l.setAttribute('y2', fmt.h);
+      this.overlay.appendChild(l);
+    }
+    if (this._snapAtivo.y != null) {
+      const l = document.createElementNS(NS, 'line');
+      l.setAttribute('class', 'snap');
+      l.setAttribute('y1', this._snapAtivo.y * fmt.h); l.setAttribute('y2', this._snapAtivo.y * fmt.h);
+      l.setAttribute('x1', 0); l.setAttribute('x2', fmt.w);
+      this.overlay.appendChild(l);
     }
   }
 
@@ -257,9 +374,25 @@ export class Stage {
             fy: clamp(start.fy - dy * (1.15 / z)),
           });
         } else {
-          this.store.setLayerLive(start.id, {
-            box: { ...start.box, x: start.box.x + dx, y: start.box.y + dy },
-          });
+          let nx = start.box.x + dx;
+          let ny = start.box.y + dy;
+          this._snapAtivo = { x: null, y: null };
+
+          // Alt segura o imã no desktop. No celular não existe
+          // modificador no dedo — lá o toggle fica no painel.
+          if (this.guides.snap && !e.altKey) {
+            const fmt = getFormat(this.store.formato);
+            const tolX = 0.008;
+            const tolY = tolX * (fmt.w / fmt.h);   // mesma folga em PIXELS
+            const bw = start.box.w;
+            const bh = start.box.h || 0.05;
+
+            const sx = this._imantar(nx, bw, this._alvosX(fmt), tolX);
+            if (sx) { nx = sx.pos; this._snapAtivo.x = sx.guia; }
+            const sy = this._imantar(ny, bh, this._alvosY(fmt), tolY);
+            if (sy) { ny = sy.pos; this._snapAtivo.y = sy.guia; }
+          }
+          this.store.setLayerLive(start.id, { box: { ...start.box, x: nx, y: ny } });
         }
       }
     });
@@ -274,8 +407,10 @@ export class Stage {
         this.onSlide(this.store.slideIndex);
       }
       if ((mode === 'layer' || mode === 'pinch') && moved) {
+        this._snapAtivo = { x: null, y: null };
         this.store.endLive();
         this.onCommit();
+        this.drawOverlay();
       }
       if (pointers.size === 0) { mode = null; start = null; }
     };

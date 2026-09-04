@@ -82,6 +82,26 @@
   vector-effect: non-scaling-stroke;
 }
 
+/* Grade de diagramação — 6 colunas dentro da zona segura.
+   As colunas são chapa, não contorno: contorno em 6 colunas
+   vira 12 linhas e o canvas fica ilegível. */
+.ed-overlay rect.col { fill: rgba(244,241,234,0.055); stroke: none; }
+.ed-overlay line.rowline {
+  stroke: rgba(244,241,234,0.06); stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.ed-overlay line.baseline {
+  stroke: rgba(244,241,234,0.045); stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* A guia de imã ativa. É a única que grita — as outras
+   existem para serem ignoradas até você precisar delas. */
+.ed-overlay line.snap {
+  stroke: var(--accent); stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
 /* Indicador de slide do carrossel */
 .ed-slides {
   position: absolute; left: 0; right: 0; bottom: var(--s-3);
@@ -179,6 +199,19 @@
    mas dentro do painel do editor isso os joga para fora da
    área rolável e eles aparecem cortados. Aqui ficam contidos. */
 .ed-body .chips { margin-inline: 0; padding-inline: 0; }
+
+/* Texto de ajuda dentro do painel.
+   `.nano` é caixa alta com tracking de 0.22em e line-height 1 —
+   ótimo para um rótulo de três palavras, ilegível para duas
+   linhas de explicação. */
+.ed-hint {
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  line-height: 1.55;
+  letter-spacing: 0.02em;
+  color: var(--dim);
+  margin-top: var(--s-3);
+}
 
 /* Amostras de cor */
 .swatches { display: flex; gap: var(--s-2); flex-wrap: wrap; }
