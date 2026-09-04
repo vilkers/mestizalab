@@ -32,7 +32,7 @@ No menu, procure **Storage & Databases → D1** (em algumas contas aparece como
   *(no celular: abra o arquivo no GitHub, toque nos três pontinhos → "Copy raw
   file", e cole)*
 - Ainda nessa tela, **copie o `Database ID`** — um código tipo
-  `a1b2c3d4-5e6f-...`. Você vai precisar dele no passo 4.
+  `a1b2c3d4-5e6f-...`. Você vai precisar dele no passo 3.
 
 ## 3. Colar o Database ID no projeto
 
