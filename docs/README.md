@@ -47,6 +47,7 @@ como o feed mostra**, e **coleções na biblioteca**.
 | [`07-GUIDE-DE-MARCA.md`](07-GUIDE-DE-MARCA.md) | O produto vendável: guide de marca virtual para clientes |
 | [`08-FERRAMENTAS-IA.md`](08-FERRAMENTAS-IA.md) | Ferramentas de design com IA — o que existe hoje e o que usar |
 | [`09-MANUAL.md`](09-MANUAL.md) | Manual de uso da plataforma, para a equipe |
+| [`10-PLANO-DE-EXECUCAO.md`](10-PLANO-DE-EXECUCAO.md) | A varredura de bugs rodada de verdade, o que foi corrigido e a ordem do que vem |
 | [`INTEGRACAO-CLAUDE.md`](INTEGRACAO-CLAUDE.md) | Contrato da API e como pedir conteúdo pela conversa |
 | [`../DEPLOY.md`](../DEPLOY.md) | Passo a passo para publicar |
 | [`../CLAUDE.md`](../CLAUDE.md) | Contexto técnico e armadilhas conhecidas |

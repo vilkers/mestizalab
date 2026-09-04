@@ -129,7 +129,10 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .btn--ghost { border-color: transparent; color: var(--dim); }
 .btn--danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 40%, transparent); }
 .btn--block { width: 100%; }
-.btn--sm { min-height: 36px; padding: 0 var(--s-3); font-size: var(--t-nano); }
+/* 42px, e não 36: esta ferramenta é usada com uma mão, em pé,
+   às vezes no set. A diretriz da Apple é 44pt e o "pequeno"
+   aqui só pode ser pequeno na tipografia, não no alvo. */
+.btn--sm { min-height: 42px; padding: 0 var(--s-4); font-size: var(--t-nano); }
 
 @media (hover: hover) {
   .btn:hover       { background: var(--fg); color: var(--bg); border-color: var(--fg); }

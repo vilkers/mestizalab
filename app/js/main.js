@@ -94,9 +94,15 @@ export function appFooter() {
     el('.marquee', line(), line()),
     el('.row.row--between.wrap-pad', { style: { marginTop: 'var(--s-6)' } },
       el('span.nano', `© ${new Date().getFullYear()} Mestiza`),
+      // Com padding: sem ele o alvo tinha 10px de altura, que
+      // é menos que a espessura de um dedo.
       el('button.nano', {
         type: 'button',
-        style: { color: 'var(--dim)', letterSpacing: 'var(--track-nano)' },
+        style: {
+          color: 'var(--dim)', letterSpacing: 'var(--track-nano)',
+          padding: 'var(--s-3) var(--s-2)', margin: 'calc(var(--s-3) * -1) calc(var(--s-2) * -1)',
+          minHeight: '44px',
+        },
         onClick: () => go('/ajustes'),
       }, 'Ajustes'),
     ),

@@ -36,6 +36,8 @@ Legenda: `✅ feito` · `🔵 em aberto` · `⏸ depende do Vilker` · `💭 ide
 | ✅ | **Armazenamento sem R2** | O R2 exige cartão. Abstração em `worker/src/storage.js`: com o binding usa R2, sem ele guarda numa tabela `blobs` do D1. O app não sabe a diferença e não há migração ao trocar |
 | ✅ | **Redução de imagem no cliente** | Foto de 3,7 MB / 4032px vira 240 KB / 1800px antes de subir. Trata orientação EXIF e preserva PNG com transparência. Vale com ou sem R2 — a peça tem 1080px, subir 4000px só gasta dados |
 | ✅ | Capacidades vindas do servidor | `/me` devolve `recursos` (tem R2? aceita vídeo? qual o teto). O app nunca chuta limite |
+| ✅ | **Terceiro degrau no export** | Web Share → download → mostrar a peça para salvar segurando. Em navegador embutido o download é bloqueado em silêncio e o botão parecia quebrado. `app/js/views/salvar.js` |
+| ✅ | **Alvos de toque ≥ 42px** | Varredura achou 48 abaixo de 44px, incluindo o botão "Ajustes" com 10px de altura e o **Exportar** com 36px. Todos corrigidos, nova varredura em 0. Ver `10-PLANO-DE-EXECUCAO.md` |
 
 ---
 
@@ -58,7 +60,7 @@ Legenda: `✅ feito` · `🔵 em aberto` · `⏸ depende do Vilker` · `💭 ide
 
 | | Item | Nota |
 |---|---|---|
-| 🔵 | Réguas com medidas em px ao arrastar | Feedback numérico durante o gesto |
+| 🔵 | Réguas com medidas em px ao arrastar | Feedback numérico durante o gesto. A grade imanta mas não diz onde você está — prioridade alta depois da varredura |
 | 🔵 | Duplicar post | "Fazer outro igual mudando a foto" é o caso mais comum |
 | 🔵 | Duplicar slide dentro do carrossel | |
 | 🔵 | Busca na fila e na biblioteca | |

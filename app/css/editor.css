@@ -189,7 +189,7 @@
 /* Linha de controles compactos (alinhamento, peso...) */
 .seg { display: flex; border: 1px solid var(--line); }
 .seg button {
-  flex: 1; min-height: 40px;
+  flex: 1; min-height: 44px;
   color: var(--dim);
   font-family: var(--mono); font-size: var(--t-nano);
   text-transform: uppercase; letter-spacing: 0.12em;
