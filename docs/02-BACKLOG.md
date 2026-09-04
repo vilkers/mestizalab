@@ -43,8 +43,8 @@ Legenda: `✅ feito` · `🔵 em aberto` · `⏸ depende do Vilker` · `💭 ide
 | ✅ | **Grid de diagramação no editor** | 6 colunas + 8 linhas + baseline em 24 divisões, dentro da zona segura. Toggles em Formato → Guias. `app/js/editor-stage.js` → `gridSpec()` |
 | ✅ | **Snap às guias** | Imanta borda inicial, centro e borda final na coluna, na linha, na margem e no centro do artboard. Guia dourada acende no eixo que pegou. Alt solta no desktop; toggle no painel para o celular |
 | ✅ | **Preview de carrossel** | Faixa horizontal com scroll-snap, vizinhos espiando, pontos de posição e contador que segue o scroll. Mostra a legenda cortada em 125 caracteres, onde o feed corta. Abre pelo botão em Conteúdo ou tocando nos pontos do palco. `app/js/views/carrossel-preview.js` |
-| 🔵 | **Pastas / coleções na biblioteca de mídia** | Subir os assets já produzidos, organizados por pasta (cliente, projeto, campanha, ano). Hoje é uma grade cronológica única |
-| 🔵 | **Upload em lote com pasta de destino** | Arrastar 40 fotos de uma campanha e escolher a coleção |
+| ✅ | **Pastas / coleções na biblioteca de mídia** | Coleção é texto livre: criar é digitar o nome ao subir, sem passo de "criar pasta antes". Chips com contagem, filtro, e mover arquivo pelo detalhe. Vale também no seletor dentro do editor. `app/js/views/midia.js` |
+| ✅ | **Upload em lote com coleção de destino** | Várias de uma vez, com barra de progresso por arquivo. Selecionar uma coleção já define o destino do próximo upload |
 | 🔵 | **Varredura de bugs e usabilidade pós-entrega** | Rotina formal, ver `06-AGENTES-E-ROTINAS.md` |
 
 ### Prioridade média
@@ -126,3 +126,5 @@ Legenda: `✅ feito` · `🔵 em aberto` · `⏸ depende do Vilker` · `💭 ide
   desta sessão em duas tentativas. Ver `03-PENDENCIAS.md`.
 - **Evolução contínua:** revisar este arquivo a cada sessão, confirmar que nada
   do que foi pedido saiu, e acrescentar o que apareceu.
+- **Migração de banco:** bancos já criados precisam de
+  `worker/migrations/001-colecoes.sql`. Bancos novos já nascem com a coluna.

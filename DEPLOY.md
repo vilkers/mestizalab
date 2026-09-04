@@ -111,6 +111,20 @@ aponta para cá.
 
 ---
 
+## Migrações do banco
+
+Quando um deploy trouxer mudança de estrutura no banco, ela vem como arquivo em
+`worker/migrations/`. Rode uma vez cada:
+
+```bash
+npx wrangler d1 execute mestiza-lab --remote --file=migrations/001-colecoes.sql
+```
+
+Se você está criando o banco agora pelo `schema.sql`, **não precisa rodar
+nenhuma migração** — o schema já vem completo.
+
+---
+
 ## Publicar uma mudança depois
 
 ```bash

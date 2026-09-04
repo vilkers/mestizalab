@@ -61,12 +61,15 @@ export const api = {
 
   /* --- mídia --- */
   listMedia: (q = {}) => request('/media?' + new URLSearchParams(q)),
+  updateMedia: (id, data) => request(`/media/${id}`, { method: 'PUT', body: data }),
   deleteMedia: (id) => request(`/media/${id}`, { method: 'DELETE' }),
+  listColecoes: () => request('/colecoes'),
   /** Upload com progresso — fetch não expõe progresso de envio, então XHR. */
-  uploadMedia(file, { onProgress, signal } = {}) {
+  uploadMedia(file, { onProgress, signal, colecao } = {}) {
     return new Promise((resolve, reject) => {
       const fd = new FormData();
       fd.append('file', file, file.name);
+      if (colecao) fd.append('colecao', colecao);
       const xhr = new XMLHttpRequest();
       xhr.open('POST', API_BASE + '/media');
       xhr.withCredentials = true;

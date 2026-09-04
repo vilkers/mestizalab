@@ -237,12 +237,27 @@ async function rotear(req, env, ctx, caminho, url) {
   /* ---------- mídia ---------- */
   if (caminho === '/media' && m === 'GET') {
     const tipo = url.searchParams.get('tipo') || '';
+    const colecao = url.searchParams.get('colecao');
     let sql = 'SELECT * FROM media WHERE 1=1';
     const bind = [];
     if (tipo) { sql += ' AND tipo = ?'; bind.push(tipo); }
+    // `colecao=` vazio na URL significa "as soltas", que é
+    // diferente de não mandar o parâmetro (= tudo).
+    if (colecao !== null) { sql += ' AND colecao = ?'; bind.push(colecao); }
     sql += ' ORDER BY criado_em DESC LIMIT 300';
     const r = await db.prepare(sql).bind(...bind).all();
     return json({ media: r.results.map((x) => ({ ...x, url: `${base(env, url)}/files/${x.chave}` })) });
+  }
+
+  /** As coleções existentes, com quantos itens cada uma tem. */
+  if (caminho === '/colecoes' && m === 'GET') {
+    const r = await db.prepare(`
+      SELECT colecao AS nome, COUNT(*) AS itens
+      FROM media WHERE colecao != ''
+      GROUP BY colecao ORDER BY colecao COLLATE NOCASE
+    `).all();
+    const soltas = await db.prepare("SELECT COUNT(*) AS n FROM media WHERE colecao = ''").first();
+    return json({ colecoes: r.results, soltas: soltas?.n || 0 });
   }
 
   if (caminho === '/media' && m === 'POST') {
@@ -257,6 +272,7 @@ async function rotear(req, env, ctx, caminho, url) {
     const limite = ehVideo ? LIMITE_VIDEO : LIMITE_IMAGEM;
     if (f.size > limite) return erro(413, `Arquivo maior que ${Math.round(limite / 1048576)} MB.`);
 
+    const colecao = String(fd.get('colecao') || '').slice(0, 80).trim();
     const id = uid('med_');
     const ext = extDe(f.name, mime);
     const chave = `${ehVideo ? 'video' : 'img'}/${new Date().toISOString().slice(0, 7)}/${id}.${ext}`;
@@ -271,13 +287,24 @@ async function rotear(req, env, ctx, caminho, url) {
     });
 
     await db.prepare(`
-      INSERT INTO media (id, chave, nome, mime, tipo, tamanho, criado_por)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).bind(id, chave, (f.name || '').slice(0, 200), mime, ehVideo ? 'video' : 'image', f.size, user.id).run();
+      INSERT INTO media (id, chave, nome, mime, tipo, tamanho, colecao, criado_por)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(id, chave, (f.name || '').slice(0, 200), mime, ehVideo ? 'video' : 'image', f.size, colecao, user.id).run();
 
     return json({
-      media: { id, chave, nome: f.name, mime, tipo: ehVideo ? 'video' : 'image', tamanho: f.size, url: `${base(env, url)}/files/${chave}` },
+      media: { id, chave, nome: f.name, mime, tipo: ehVideo ? 'video' : 'image', tamanho: f.size, colecao, url: `${base(env, url)}/files/${chave}` },
     }, { status: 201 });
+  }
+
+  if ((mm = /^\/media\/([\w-]+)$/.exec(caminho)) && m === 'PUT') {
+    const b = await req.json().catch(() => ({}));
+    const campos = [], bind = [];
+    if (b.colecao !== undefined) { campos.push('colecao = ?'); bind.push(String(b.colecao).slice(0, 80).trim()); }
+    if (b.nome !== undefined) { campos.push('nome = ?'); bind.push(String(b.nome).slice(0, 200)); }
+    if (!campos.length) return json({ ok: true });
+    bind.push(mm[1]);
+    await db.prepare(`UPDATE media SET ${campos.join(', ')} WHERE id = ?`).bind(...bind).run();
+    return json({ ok: true });
   }
 
   if ((mm = /^\/media\/([\w-]+)$/.exec(caminho)) && m === 'DELETE') {

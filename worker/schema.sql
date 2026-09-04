@@ -100,10 +100,16 @@ CREATE TABLE IF NOT EXISTS media (
   tamanho    INTEGER NOT NULL DEFAULT 0,
   largura    INTEGER,
   altura     INTEGER,
+  -- Coleção é texto livre, não tabela. Criar uma coleção é
+  -- digitar um nome; não existe passo de "criar pasta antes
+  -- de subir". Se um dia precisar de ordem ou capa, vira
+  -- tabela — até lá isso resolve com zero atrito.
+  colecao    TEXT NOT NULL DEFAULT '',
   criado_por TEXT REFERENCES users(id) ON DELETE SET NULL,
   criado_em  TEXT NOT NULL DEFAULT (datetime('now'))
 );
-CREATE INDEX IF NOT EXISTS idx_media_em ON media(criado_em DESC);
+CREATE INDEX IF NOT EXISTS idx_media_em      ON media(criado_em DESC);
+CREATE INDEX IF NOT EXISTS idx_media_colecao ON media(colecao);
 
 -- ---------------------------------------------------------
 -- Briefings — o que chega do Claude
