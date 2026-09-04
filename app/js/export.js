@@ -58,6 +58,17 @@ export function canShareFiles(files) {
   return !!(navigator.canShare && navigator.share && navigator.canShare({ files }));
 }
 
+/**
+ * Três degraus, nesta ordem:
+ *   1. Web Share  — entrega direto pro Instagram ou pro rolo
+ *   2. Download   — o caminho de desktop
+ *   3. Visual     — mostra a peça para salvar segurando
+ *
+ * O degrau 3 não é enfeite: em navegador embutido o download
+ * é bloqueado pelo sandbox e o `<a download>` não faz nada,
+ * em silêncio. Sem esse degrau, o botão Exportar pareceria
+ * quebrado sem dar nenhuma pista.
+ */
 export async function shareOrDownload(blobs, names, { title = 'Mestiza', text = '' } = {}) {
   const files = blobs.map((b, i) => new File([b], names[i], { type: b.type }));
   if (canShareFiles(files)) {
@@ -66,9 +77,17 @@ export async function shareOrDownload(blobs, names, { title = 'Mestiza', text = 
       return 'shared';
     } catch (e) {
       if (e.name === 'AbortError') return 'cancelled';
-      // Share falhou por outro motivo: cai no download.
+      // Share falhou por outro motivo: desce um degrau.
     }
   }
+
+  const { downloadBloqueado, abrirParaSalvar, abrirVideoParaSalvar } = await import('./views/salvar.js');
+  if (downloadBloqueado()) {
+    if (blobs[0] && blobs[0].type.startsWith('video')) abrirVideoParaSalvar(blobs[0], names[0]);
+    else abrirParaSalvar(blobs, names, { title });
+    return 'manual';
+  }
+
   blobs.forEach((b, i) => downloadBlob(b, names[i]));
   return 'downloaded';
 }

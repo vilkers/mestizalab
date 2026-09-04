@@ -217,6 +217,16 @@
   margin-top: var(--s-3);
 }
 
+/* Peças mostradas para salvar segurando. O callout precisa
+   ficar habilitado — o padrão do app o desliga na interface,
+   e aqui ele é justamente o mecanismo de salvar. */
+.salvar-item { margin-bottom: var(--s-5); }
+.salvar-item img {
+  -webkit-touch-callout: default;
+  -webkit-user-select: auto;
+  user-select: auto;
+}
+
 /* Amostras de cor */
 .swatches { display: flex; gap: var(--s-2); flex-wrap: wrap; }
 .sw {

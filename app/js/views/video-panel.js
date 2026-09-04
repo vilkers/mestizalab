@@ -198,7 +198,7 @@ export function mountVideoPanel(bodyEl, { store, stage, markDirty }) {
       clear(progresso);
       const nome = slideName(store, 0, ext);
       const r = await shareOrDownload([blob], [nome], { title: store.titulo, text: store.legenda });
-      toast(r === 'shared' ? 'Vídeo enviado.' : 'Vídeo salvo.', 'gold');
+      toast(r === 'shared' ? 'Vídeo enviado.' : r === 'manual' ? 'Vídeo pronto — veja como salvar.' : 'Vídeo salvo.', 'gold');
     } catch (e) {
       clear(progresso);
       if (e.name !== 'AbortError') {
@@ -211,8 +211,8 @@ export function mountVideoPanel(bodyEl, { store, stage, markDirty }) {
     try {
       const blob = await maskPNG(store.doc, { scale: 1 });
       const nome = slideName(store, 0, 'png').replace('.png', '-mascara.png');
-      await shareOrDownload([blob], [nome], { title: 'Máscara' });
-      toast('Máscara salva. Ela é transparente — é só pôr por cima do clipe.', 'gold');
+      const r = await shareOrDownload([blob], [nome], { title: 'Máscara' });
+      if (r !== 'manual') toast('Máscara salva. Ela é transparente — é só pôr por cima do clipe.', 'gold');
     } catch (e) { toast(e.message, 'bad'); }
   }
 

@@ -45,6 +45,8 @@ Legenda: `✅ feito` · `🔵 em aberto` · `⏸ depende do Vilker` · `💭 ide
 
 | | Item | Nota |
 |---|---|---|
+| ⏸ | **Publicar de verdade na Cloudflare** | Adiado a pedido do Vilker em 04/09 — ele quis ver o app antes. Passo a passo pronto e simplificado em `DEPLOY.md` (5 passos, sem cartão, pelo celular). Retomar quando ele quiser: o próximo passo é criar o banco D1 e me mandar o Database ID |
+| ✅ | **Demo navegável sem servidor** | Build de arquivo único com API simulada, para o Vilker usar o app antes de publicar. `tools/build-demo.mjs` |
 | ✅ | **Grid de diagramação no editor** | 6 colunas + 8 linhas + baseline em 24 divisões, dentro da zona segura. Toggles em Formato → Guias. `app/js/editor-stage.js` → `gridSpec()` |
 | ✅ | **Snap às guias** | Imanta borda inicial, centro e borda final na coluna, na linha, na margem e no centro do artboard. Guia dourada acende no eixo que pegou. Alt solta no desktop; toggle no painel para o celular |
 | ✅ | **Preview de carrossel** | Faixa horizontal com scroll-snap, vizinhos espiando, pontos de posição e contador que segue o scroll. Mostra a legenda cortada em 125 caracteres, onde o feed corta. Abre pelo botão em Conteúdo ou tocando nos pontos do palco. `app/js/views/carrossel-preview.js` |

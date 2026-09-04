@@ -643,6 +643,16 @@ export async function renderEditor(container, { go, params }) {
       }
 
       if (modo === 'zip') {
+        const { downloadBloqueado } = await import('./salvar.js');
+        if (downloadBloqueado()) {
+          // Zip não dá para salvar segurando. Melhor dizer isso
+          // do que baixar nada e deixar a pessoa achando que
+          // funcionou.
+          label.textContent = 'Neste navegador o .zip não pode ser baixado. Use "Salvar todas" — as imagens aparecem uma a uma para você salvar.';
+          label.style.color = 'var(--warn)';
+          bar.style.width = '100%';
+          return;
+        }
         const zip = await makeZip(blobs.map((b, i) => ({ name: names[i], blob: b })));
         downloadBlob(zip, slideName(store, 0, 'zip').replace('-01', ''));
         toast('Zip baixado.');
@@ -650,6 +660,7 @@ export async function renderEditor(container, { go, params }) {
         const r = await shareOrDownload(blobs, names, { title: store.titulo, text: store.legenda });
         if (r === 'shared') toast('Enviado.', 'gold');
         else if (r === 'downloaded') toast(`${blobs.length} ${blobs.length > 1 ? 'arquivos baixados' : 'arquivo baixado'}.`);
+        else if (r === 'manual') toast('Segure a imagem para salvar no aparelho.', 'gold');
       }
       close();
     } catch (e) {
