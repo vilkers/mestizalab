@@ -37,6 +37,10 @@ Legenda: `✅ feito` · `🔵 em aberto` · `⏸ depende do Vilker` · `💭 ide
 | ✅ | **Redução de imagem no cliente** | Foto de 3,7 MB / 4032px vira 240 KB / 1800px antes de subir. Trata orientação EXIF e preserva PNG com transparência. Vale com ou sem R2 — a peça tem 1080px, subir 4000px só gasta dados |
 | ✅ | Capacidades vindas do servidor | `/me` devolve `recursos` (tem R2? aceita vídeo? qual o teto). O app nunca chuta limite |
 | ✅ | **Terceiro degrau no export** | Web Share → download → mostrar a peça para salvar segurando. Em navegador embutido o download é bloqueado em silêncio e o botão parecia quebrado. `app/js/views/salvar.js` |
+| ✅ | **Tratamento editorial — tela da Fila** | Escolha do Vilker: editorial impresso, uma tela primeiro. Manchete em display que DIZ o estado da fila, lista como página de índice numerada, trilho de filtros separado por régua, cabeçalho de seção com sticky stacking, esqueleto de carregamento em réguas, vazio com voz, alternador índice/folha de contato. `app/js/views/fila.js` |
+| ✅ | **Sistema de motion** | Velocidade de rolagem como variável CSS (`js/scroll.js`), reveal por máscara linha a linha, parallax por velocidade nas chapas, contra-escala na revelação de imagem. Sem biblioteca. Ver `04-DESIGN-SYSTEM.md` §4 |
+| ✅ | **Escala tipográfica corrigida** | O app rodava em metade da escala do site do estúdio. `--t-h1` foi de `clamp(2rem, 8.5vw, 3.5rem)` para `clamp(2.5rem, 11vw, 5rem)`, e entraram os tokens de ritmo `--rit-1..3` |
+| 🔵 | **Propagar o tratamento editorial** | Mídia, Briefings, Criar, Studio e Ajustes receberam a escala nova mas ainda têm a estrutura antiga (cabeçalho + seções + cards). O editor é o próximo de maior impacto |
 | ✅ | **Alvos de toque ≥ 42px** | Varredura achou 48 abaixo de 44px, incluindo o botão "Ajustes" com 10px de altura e o **Exportar** com 36px. Todos corrigidos, nova varredura em 0. Ver `10-PLANO-DE-EXECUCAO.md` |
 
 ---

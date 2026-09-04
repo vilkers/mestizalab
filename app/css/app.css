@@ -435,3 +435,350 @@
   .page { padding-bottom: var(--s-20); }
   .toast-rail { bottom: var(--s-8); }
 }
+
+/* =========================================================
+   EDITORIAL — a linguagem da Fila
+   Tratamento de publicação: display grande, hairline como
+   estrutura, índice numerado, e movimento que responde à
+   velocidade da rolagem em vez de tocar sozinho.
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   Linha mascarada — o gesto principal.
+   Cada linha sobe de dentro do próprio corte, em sequência.
+   Nada aqui faz fade: fade é o padrão de todo template e é
+   exatamente por isso que parece template.
+   --------------------------------------------------------- */
+.linha { display: block; overflow: hidden; padding-bottom: 0.08em; }
+.linha > span {
+  display: block;
+  transform: translateY(106%);
+  transition: transform var(--d-4) var(--ease);
+  transition-delay: var(--delay, 0ms);
+}
+.linha.is-in > span { transform: none; }
+
+/* Bloco genérico que entra por deslocamento curto. */
+[data-entra] { --delay: 0ms; }
+.sobe {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity var(--d-3) var(--ease), transform var(--d-3) var(--ease);
+  transition-delay: var(--delay, 0ms);
+}
+.sobe.is-in { opacity: 1; transform: none; }
+
+/* Régua que se desenha da esquerda. */
+.regua {
+  height: 1px; background: var(--line);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform var(--d-4) var(--ease);
+  transition-delay: var(--delay, 0ms);
+}
+.regua.is-in { transform: scaleX(1); }
+.regua--ouro { background: var(--accent); }
+
+/* ---------------------------------------------------------
+   Abertura da página
+   --------------------------------------------------------- */
+.abertura {
+  padding: var(--rit-1) 0 var(--rit-1);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--rit-1);
+}
+.abertura .chapeu {
+  display: flex; align-items: baseline; gap: var(--s-4);
+  color: var(--dim);
+  margin-bottom: var(--s-6);
+}
+.abertura .chapeu .pt { flex: 1; height: 1px; background: var(--line); }
+
+.manchete {
+  font-family: var(--serif);
+  font-size: var(--t-h1);
+  font-weight: 600;
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+  margin-bottom: var(--s-5);
+}
+.manchete em { font-style: italic; font-weight: 500; color: var(--accent); }
+
+.abertura .lead {
+  font-size: var(--t-lead);
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  color: var(--dim);
+  max-width: 22ch;
+}
+
+/* ---------------------------------------------------------
+   Trilho de filtros — índice separado por régua, não pílulas.
+   Pílula é vocabulário de aplicativo; régua é de publicação.
+   --------------------------------------------------------- */
+.rail {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-inline: calc(var(--gutter) * -1);
+  padding-inline: var(--gutter);
+  border-block: 1px solid var(--line);
+}
+.rail::-webkit-scrollbar { display: none; }
+.rail + .rail { border-top: 0; }
+
+.rail button {
+  flex: none;
+  position: relative;
+  min-height: 46px;
+  padding: 0 var(--s-4) 0 0;
+  margin-right: var(--s-4);
+  display: inline-flex; align-items: center; gap: 0.55em;
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: var(--track-micro);
+  white-space: nowrap;
+  border-right: 1px solid var(--line);
+  transition: color var(--d-1) var(--ease);
+}
+.rail button:last-child { border-right: 0; margin-right: 0; }
+.rail button .n {
+  font-size: var(--t-nano);
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+  transition: color var(--d-1) var(--ease);
+}
+.rail button.is-on { color: var(--fg); }
+.rail button.is-on .n { color: var(--accent); }
+/* A marca do ativo é uma régua dourada que corre por baixo. */
+.rail button::after {
+  content: ''; position: absolute; left: 0; right: var(--s-4); bottom: 0;
+  height: 1px; background: var(--accent);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform var(--d-2) var(--ease);
+}
+.rail button.is-on::after { transform: scaleX(1); }
+
+/* ---------------------------------------------------------
+   Cabeçalho de seção com empilhamento
+   Ele gruda sob a barra do app enquanto o grupo rola, e o
+   próximo empurra o anterior. É comportamento de índice —
+   você sempre sabe em que faixa está.
+   --------------------------------------------------------- */
+.faixa {
+  position: sticky;
+  top: calc(var(--header-h) + var(--safe-t));
+  z-index: var(--z-sticky);
+  display: flex; align-items: center; gap: var(--s-4);
+  padding: var(--s-4) var(--gutter);
+  margin-inline: calc(var(--gutter) * -1);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+}
+.faixa .rot { color: var(--fg); }
+.faixa .pt { flex: 1; height: 1px; background: var(--line); }
+.faixa .cont {
+  font-family: var(--mono);
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+}
+
+/* ---------------------------------------------------------
+   Índice — a lista como página de sumário
+   --------------------------------------------------------- */
+.idx-lista {
+  display: block;
+  margin-inline: calc(var(--gutter) * -1);
+}
+.idx-row {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: 26px 1fr 62px;
+  align-items: start;
+  gap: var(--s-4);
+  width: 100%;
+  padding: var(--s-5) var(--gutter);
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  color: var(--fg);
+  transition: color var(--d-2) var(--ease);
+}
+.idx-row::before {
+  content: ''; position: absolute; inset: 0; z-index: -1;
+  background: var(--fg);
+  transform: scaleY(0); transform-origin: bottom;
+  transition: transform var(--d-2) var(--ease);
+}
+.idx-row:active { color: var(--bg); }
+.idx-row:active::before { transform: scaleY(1); }
+@media (hover: hover) {
+  .idx-row:hover { color: var(--bg); }
+  .idx-row:hover::before { transform: scaleY(1); }
+}
+.idx-row .num {
+  font-family: var(--mono);
+  font-size: var(--t-nano);
+  letter-spacing: 0.08em;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+  padding-top: 5px;
+  transition: color var(--d-2) var(--ease);
+}
+.idx-row:active .num { color: var(--bg); }
+@media (hover: hover) { .idx-row:hover .num { color: var(--bg); } }
+
+.idx-row .t {
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: -0.022em;
+  margin-bottom: var(--s-2);
+}
+.idx-row .meta {
+  display: flex; align-items: center; gap: var(--s-3);
+  font-family: var(--mono);
+  font-size: var(--t-nano);
+  text-transform: uppercase;
+  letter-spacing: var(--track-nano);
+  color: var(--dim);
+  transition: color var(--d-2) var(--ease);
+}
+.idx-row:active .meta { color: var(--bg); }
+@media (hover: hover) { .idx-row:hover .meta { color: var(--bg); } }
+
+/* ---------------------------------------------------------
+   Chapa — a miniatura como prova de gráfica.
+   Revela por máscara enquanto a imagem faz contra-escala:
+   é esse par que faz a imagem parecer que sempre esteve lá,
+   em vez de ter aparecido.
+   --------------------------------------------------------- */
+.plate {
+  position: relative;
+  width: 62px; aspect-ratio: 4/5;
+  overflow: hidden;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path var(--d-3) var(--ease);
+  transition-delay: var(--delay, 0ms);
+}
+.plate.is-in { clip-path: inset(0 0 0 0); }
+/* `scale` e `translate` como propriedades SEPARADAS, e não
+   um `transform` só. Com os dois na mesma declaração, a
+   transição de 760ms do reveal amortecia o parallax até
+   sobrar zero — o efeito existia no código e não na tela.
+   Assim a escala transiciona na revelação e o deslocamento
+   segue a velocidade da rolagem sem atraso. */
+.plate img, .plate canvas {
+  width: 100%; height: 100%; object-fit: cover;
+  scale: 1.12;
+  transition: scale 760ms var(--ease);
+  transition-delay: var(--delay, 0ms);
+}
+.plate.is-in img, .plate.is-in canvas {
+  scale: 1.04;
+  /* A imagem fica levemente para trás do quadro enquanto você
+     rola. Vem da leitura de scroll, não de um cronômetro. */
+  translate: 0 calc(var(--scroll-v, 0) * -6px);
+}
+.plate .vazia {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  color: var(--faint);
+}
+.plate .selo {
+  position: absolute; top: 3px; left: 3px;
+  padding: 2px 4px;
+  background: rgba(0,0,0,0.78);
+  color: var(--accent);
+  font-family: var(--mono); font-size: 8px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+}
+
+/* Ponto de status: o estado lido de relance. */
+.pstatus { width: 5px; height: 5px; border-radius: 50%; flex: none; }
+
+/* ---------------------------------------------------------
+   Folha de contato — a outra densidade
+   --------------------------------------------------------- */
+.contato {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border-block: 1px solid var(--line);
+  margin-inline: calc(var(--gutter) * -1);
+}
+.contato .cel { background: var(--bg); padding: var(--s-3); text-align: left; }
+.contato .plate { width: 100%; }
+.contato .t {
+  font-family: var(--serif); font-size: 0.98rem; font-weight: 500;
+  letter-spacing: -0.015em; line-height: 1.2;
+  margin-top: var(--s-3);
+}
+.contato .meta {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 5px;
+  font-family: var(--mono); font-size: var(--t-nano);
+  letter-spacing: var(--track-nano); text-transform: uppercase;
+  color: var(--dim);
+}
+
+/* Alternador de densidade */
+.vista { display: flex; gap: var(--s-2); align-items: center; }
+.vista button {
+  min-height: 44px; padding: 0 var(--s-2);
+  color: var(--faint);
+  font-family: var(--mono); font-size: var(--t-nano);
+  text-transform: uppercase; letter-spacing: var(--track-nano);
+  transition: color var(--d-1) var(--ease);
+}
+.vista button.is-on { color: var(--accent); }
+
+/* ---------------------------------------------------------
+   Esqueleto: réguas que se desenham.
+   Um spinner diz "espere"; réguas na medida do conteúdo
+   dizem "é isto que está vindo".
+   --------------------------------------------------------- */
+.esq { display: grid; gap: var(--s-6); padding-block: var(--s-6); }
+.esq i {
+  display: block; height: 1px; background: var(--line);
+  transform-origin: left;
+  animation: esq-desenha 1.5s var(--ease) infinite;
+}
+.esq i:nth-child(2) { animation-delay: 0.12s; }
+.esq i:nth-child(3) { animation-delay: 0.24s; }
+.esq i:nth-child(4) { animation-delay: 0.36s; }
+@keyframes esq-desenha {
+  0%   { transform: scaleX(0); opacity: 0.35; }
+  55%  { transform: scaleX(1); opacity: 1; }
+  100% { transform: scaleX(1); opacity: 0.35; }
+}
+
+/* ---------------------------------------------------------
+   Vazio com voz
+   --------------------------------------------------------- */
+.vazio { padding: var(--rit-2) 0; }
+.vazio .frase {
+  font-family: var(--serif);
+  font-size: var(--t-h2);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  margin-bottom: var(--s-5);
+  max-width: 16ch;
+}
+.vazio .frase em { font-style: italic; font-weight: 500; color: var(--accent); }
+.vazio p { color: var(--dim); max-width: 34ch; margin-bottom: var(--s-6); font-size: var(--t-small); }
+
+@media (prefers-reduced-motion: reduce) {
+  .linha > span, .sobe, .regua, .plate, .plate img { transition: none !important; transform: none !important; opacity: 1 !important; clip-path: none !important; }
+  .esq i { animation: none; transform: scaleX(1); }
+}

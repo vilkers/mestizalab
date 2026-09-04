@@ -30,12 +30,16 @@
   --serif: 'STIX Two Text', Georgia, 'Times New Roman', serif;
   --mono:  'Spline Sans Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
-  /* Display — serif, negativo no tracking, line-height fechado.
-     É o gesto do site: tipo grande respirando pouco. */
-  --t-display: clamp(2.75rem, 13vw, 6rem);
-  --t-h1:      clamp(2rem, 8.5vw, 3.5rem);
-  --t-h2:      clamp(1.5rem, 5.5vw, 2.25rem);
-  --t-h3:      1.25rem;
+  /* Display — serif, tracking negativo, line-height fechado.
+     A escala é editorial, não de aplicativo: o degrau entre
+     o display e o micro é o que faz o tipo grande parecer
+     ainda maior. Um app que usa a fonte da marca no tamanho
+     de um SaaS não tem a marca, tem a fonte. */
+  --t-display: clamp(3.25rem, 16vw, 7.5rem);
+  --t-h1:      clamp(2.5rem, 11vw, 5rem);
+  --t-h2:      clamp(1.6rem, 6vw, 2.6rem);
+  --t-h3:      1.3rem;
+  --t-lead:    clamp(1.15rem, 4.4vw, 1.6rem);
   --t-body:    1rem;
   --t-small:   0.875rem;
 
@@ -59,6 +63,12 @@
   --s-16: 64px;
   --s-20: 80px;
   --s-24: 96px;
+  /* Ritmo editorial. O respiro entre blocos é o que separa
+     "lista de app" de "página". Fluido porque em 393px de
+     largura 200px de vazio é desperdício, e em 1200px não é. */
+  --rit-1: clamp(40px, 9vh, 96px);
+  --rit-2: clamp(64px, 15vh, 180px);
+  --rit-3: clamp(96px, 24vh, 300px);
 
   --gutter: clamp(16px, 5vw, 40px);
   --maxw:   1400px;
@@ -68,10 +78,15 @@
   --ease-in:   cubic-bezier(0.7, 0, 0.84, 0);
   --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
 
-  --d-1: 180ms;   /* micro-feedback: tap, toggle */
-  --d-2: 320ms;   /* elementos entrando */
-  --d-3: 620ms;   /* transição de view */
-  --d-4: 900ms;   /* reveals de página */
+  /* Andamento de FERRAMENTA, não de site de portfólio.
+     A gramática premiada trabalha em 800ms–1,2s porque é
+     feita para uma visita. Isto abre vinte vezes por dia:
+     o que encanta na primeira abertura irrita na quinta.
+     Teto de 620ms, e só na entrada de tela. */
+  --d-1: 160ms;   /* micro-feedback: tap, toggle */
+  --d-2: 300ms;   /* elementos entrando */
+  --d-3: 480ms;   /* transição de view */
+  --d-4: 620ms;   /* reveal de abertura — o mais lento que existe aqui */
 
   /* ---- Forma ---- */
   --r-0:  0px;      /* padrão: quina viva. É editorial, não app-store. */
@@ -100,3 +115,12 @@
    não minta sobre o contraste da arte. Declaramos isso ao
    browser para que os controles nativos acompanhem. */
 :root { color-scheme: dark; }
+
+/* Leitura de rolagem — publicada por js/scroll.js.
+   Declaradas aqui com valor neutro para que nenhum calc()
+   dependa de o JavaScript já ter rodado. */
+:root {
+  --scroll-v: 0;
+  --scroll-abs: 0;
+  --scroll-skew: 0deg;
+}

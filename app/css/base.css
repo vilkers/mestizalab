@@ -20,7 +20,11 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  overflow-x: hidden;
+  /* `clip` e não `hidden`: overflow-x hidden cria um contexto
+     de rolagem e MATA todo `position: sticky` descendente —
+     o cabeçalho de seção da Fila depende disso. `clip` corta
+     igual e não cria o contexto. */
+  overflow-x: clip;
   overscroll-behavior-y: none;   /* mata o bounce que atrapalha o pull do sheet */
   min-height: 100svh;
 }

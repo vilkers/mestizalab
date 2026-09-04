@@ -22,6 +22,25 @@ Tudo vem de `mestiza.work` (repo `vilkers/mestiza`, `css/style.css`).
 
 **Tipografia:**
 
+**Escala.** Calibrada contra o `style.css` do site do estúdio — o app rodava
+em metade dela, o que fazia a ferramenta usar a fonte da marca no tamanho de um
+SaaS.
+
+```
+--t-display  clamp(3.25rem, 16vw, 7.5rem)
+--t-h1       clamp(2.5rem,  11vw, 5rem)     (era clamp(2rem, 8.5vw, 3.5rem))
+--t-h2       clamp(1.6rem,  6vw,  2.6rem)
+--t-lead     clamp(1.15rem, 4.4vw, 1.6rem)
+```
+
+**Ritmo.** O respiro entre blocos é o que separa "lista de app" de "página".
+
+```
+--rit-1  clamp(40px,  9vh,  96px)
+--rit-2  clamp(64px, 15vh, 180px)
+--rit-3  clamp(96px, 24vh, 300px)
+```
+
 | Papel | Fonte | Especificação |
 |---|---|---|
 | Display | STIX Two Text | 600, tracking `-0.03em`, leading `0.94` |
@@ -139,12 +158,68 @@ tapado pelo botão de curtir.
 
 ---
 
-## 4. Referência de comportamento — `paulkalkbrenner.net`
+## 4. Motion — a gramática premiada, no andamento de ferramenta
 
-⚠️ **Não consegui abrir o site.** Bloqueado pelo proxy de rede desta sessão em
-duas tentativas (`EGRESS_BLOCKED`). Não vou descrever o que não vi.
+⚠️ **`paulkalkbrenner.net` continua inacessível.** Cinco rotas tentadas
+(direta, WebFetch, Wayback, Awwwards, extrator de texto): o proxy desta sessão
+libera apenas registros de pacote, Google Fonts e as APIs da Anthropic. Isso
+está fechado — não é falta de tentativa.
 
-**Pendente:** screenshots ([`03-PENDENCIAS.md`](03-PENDENCIAS.md), item 1).
+O que substituiu: pesquisa da linguagem de motion premiada de 2026, e a
+decisão de andamento, que é a parte que importa.
+
+### A tensão que define tudo aqui
+
+A gramática de site premiado — Lenis, ScrollTrigger com pin, split de texto,
+sticky stacking, timeline normalizada 0→1 — foi feita para uma **visita**:
+linear, cinematográfica, uma vez só. Isto é uma **ferramenta**, aberta vinte
+vezes por dia. Um reveal de 800ms encanta na abertura nº 1 e irrita na nº 5.
+
+**A decisão:** pegar a linguagem, mudar o andamento, e concentrar o drama onde
+não se repete — a entrada de tela, a troca de contexto, o momento do export.
+
+```
+--d-1: 160ms   micro-feedback (era 180)
+--d-2: 300ms   elementos entrando
+--d-3: 480ms   transição de view
+--d-4: 620ms   reveal de abertura — o mais lento que existe aqui
+```
+
+### O que foi levado
+
+| Padrão | Onde |
+|---|---|
+| **Reveal por máscara, linha a linha** | `.linha` — a linha sobe de dentro do próprio corte, em sequência. Nada faz fade |
+| **Velocidade de rolagem como variável** | `js/scroll.js` publica `--scroll-v`, `--scroll-abs`, `--scroll-skew` em `:root`. É o mesmo princípio das colunas de fundo do site do estúdio, que aceleram ao rolar |
+| **Parallax por velocidade** | A chapa fica ~6px para trás do quadro durante a rolagem, e volta ao parar |
+| **Reveal de imagem com contra-escala** | `clip-path` abrindo enquanto a imagem vai de `scale(1.12)` a `1.04`. É o par que faz a imagem parecer que sempre esteve lá |
+| **Sticky stacking** | `.faixa` gruda sob a barra e o próximo grupo empurra o anterior |
+| **Régua que se desenha** | `.regua` e o esqueleto de carregamento |
+| **Numeral de índice e contagem em mono tabular** | |
+
+### O que foi recusado, e por quê
+
+| Recusado | Razão |
+|---|---|
+| Scroll-driven 3D, névoa volumétrica | Queima bateria, zero valor de informação numa fila de posts |
+| **Lenis** como biblioteca | Reescreve a rolagem inteira para ganhar inércia. Briga com o momentum nativo do iOS, com o `position: sticky` do cabeçalho e com o arraste do editor. O que se quer dela é a leitura de velocidade, e essa custa vinte linhas |
+| Reveals de 800ms–1,2s | Ver a tensão acima |
+| Drag-to-explore | Colide com o arraste de reenquadramento do editor |
+| Text scramble | Ruído sobre conteúdo real; atrapalha ler |
+
+### Duas armadilhas que custaram tempo
+
+- **`overflow-x: hidden` no `body` mata todo `position: sticky` descendente.**
+  Cria contexto de rolagem. Trocado por `overflow-x: clip`, que corta igual e
+  não cria o contexto.
+- **`transform` único amortece parallax.** Com `scale` (transicionado no
+  reveal) e `translate` (seguindo a velocidade) na mesma declaração, a
+  transição de 760ms engolia o deslocamento e sobrava zero. Resolvido com as
+  propriedades **separadas** `scale:` e `translate:`.
+
+**Ainda pendente:** os screenshots do site de referência, se ele quiser
+calibrar contra aquele especificamente
+([`03-PENDENCIAS.md`](03-PENDENCIAS.md), item 1).
 
 ### O que foi aplicado até aqui, sem depender do site
 
