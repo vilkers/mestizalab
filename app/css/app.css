@@ -1,0 +1,432 @@
+/* =========================================================
+   Mestiza Lab — chrome do app
+   Mobile-first de verdade: navegação no rodapé (zona do
+   polegar), header fino só para contexto e ação primária.
+   ========================================================= */
+
+#app { position: relative; z-index: 2; min-height: 100svh; }
+
+/* ---------------------------------------------------------
+   Header
+   --------------------------------------------------------- */
+.hdr {
+  position: sticky; top: 0; z-index: var(--z-header);
+  height: calc(var(--header-h) + var(--safe-t));
+  padding-top: var(--safe-t);
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: var(--s-2);
+  padding-inline: max(var(--s-2), calc(var(--gutter) - 12px));
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--d-2) var(--ease);
+}
+.hdr.is-scrolled { border-bottom-color: var(--line); }
+.hdr-title {
+  text-align: center;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color: var(--fg);
+}
+.hdr-logo { height: 15px; width: auto; margin: 0 auto; opacity: 0.95; }
+
+/* ---------------------------------------------------------
+   Tab bar
+   Quatro destinos. Mais que isso vira gaveta e ninguém acha.
+   --------------------------------------------------------- */
+.tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  z-index: var(--z-tabbar);
+  height: calc(var(--tabbar-h) + var(--safe-b));
+  padding-bottom: var(--safe-b);
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-top: 1px solid var(--line);
+}
+.tab {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 5px;
+  color: var(--faint);
+  position: relative;
+  transition: color var(--d-2) var(--ease);
+}
+.tab svg { width: 20px; height: 20px; }
+.tab .micro { font-size: 9px; letter-spacing: 0.14em; }
+.tab.is-on { color: var(--fg); }
+/* Régua dourada que desliza — o indicador é a marca. */
+.tab::after {
+  content: ''; position: absolute; top: 0; left: 50%;
+  width: 22px; height: 1px; background: var(--accent);
+  transform: translateX(-50%) scaleX(0);
+  transition: transform var(--d-2) var(--ease);
+}
+.tab.is-on::after { transform: translateX(-50%) scaleX(1); }
+
+/* Botão central de criar — quadrado invertido, sem gracinha. */
+.tab--new .cap {
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  background: var(--fg); color: var(--bg);
+  transition: transform var(--d-1) var(--ease), background var(--d-1) var(--ease);
+}
+.tab--new:active .cap { transform: scale(0.92); }
+.tab--new.is-on .cap { background: var(--accent); }
+.tab--new svg { width: 18px; height: 18px; }
+
+/* ---------------------------------------------------------
+   Página
+   --------------------------------------------------------- */
+.page {
+  padding: var(--s-6) var(--gutter) calc(var(--tabbar-h) + var(--safe-b) + var(--s-16));
+  max-width: var(--maxw);
+  margin: 0 auto;
+}
+.page--flush { padding-inline: 0; }
+.page-head { margin-bottom: var(--s-6); }
+.page-kicker { color: var(--dim); margin-bottom: var(--s-3); display: block; }
+.page-title { margin-bottom: var(--s-2); }
+.page-sub { color: var(--dim); font-size: var(--t-small); max-width: 44ch; }
+
+/* Cabeçalho de seção com régua e contagem à direita —
+   a estrutura fica visível, que é o ponto. */
+.sec {
+  display: flex; align-items: baseline; gap: var(--s-4);
+  margin: var(--s-10) 0 var(--s-4);
+}
+.sec:first-child { margin-top: 0; }
+.sec .line { flex: 1; height: 1px; background: var(--line); }
+.sec .micro { color: var(--dim); white-space: nowrap; }
+
+/* ---------------------------------------------------------
+   Fila de posts
+   --------------------------------------------------------- */
+.queue { display: grid; gap: 1px; background: var(--line); border-block: 1px solid var(--line); }
+.qrow {
+  background: var(--bg);
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  align-items: center;
+  gap: var(--s-4);
+  padding: var(--s-4) var(--gutter);
+  text-align: left;
+  width: 100%;
+}
+.qrow .thumb {
+  width: 64px; aspect-ratio: 4/5;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  display: grid; place-items: center;
+}
+.qrow .thumb img, .qrow .thumb canvas { width: 100%; height: 100%; object-fit: cover; }
+.qrow .meta { min-width: 0; }
+.qrow .t { font-size: 1.05rem; font-weight: 500; letter-spacing: -0.015em; margin-bottom: 4px; }
+.qrow .s { display: flex; gap: var(--s-3); align-items: center; }
+.qrow .chev { color: var(--faint); }
+
+.dotst { width: 5px; height: 5px; border-radius: 50%; flex: none; }
+
+/* Grade de thumbnails — a visão que o Vilker vai usar. */
+.grid-posts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--s-3);
+}
+.pcard { position: relative; text-align: left; }
+.pcard .frame {
+  aspect-ratio: 4/5;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  position: relative;
+  transition: border-color var(--d-2) var(--ease);
+}
+.pcard:active .frame { border-color: var(--fg); }
+.pcard .frame img, .pcard .frame canvas { width: 100%; height: 100%; object-fit: cover; }
+.pcard .cap { padding-top: var(--s-2); }
+.pcard .badge {
+  position: absolute; top: 6px; left: 6px;
+  padding: 3px 6px; background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+}
+@media (hover: hover) { .pcard:hover .frame { border-color: var(--fg); } }
+
+/* ---------------------------------------------------------
+   Estado vazio — nunca uma tela morta.
+   --------------------------------------------------------- */
+.empty {
+  padding: var(--s-16) var(--s-4);
+  text-align: center;
+  border: 1px dashed var(--line);
+}
+.empty .h2 { margin-bottom: var(--s-3); }
+.empty p { color: var(--dim); max-width: 32ch; margin: 0 auto var(--s-6); font-size: var(--t-small); }
+
+/* ---------------------------------------------------------
+   Seletores (formato, template, editoria)
+   --------------------------------------------------------- */
+.opt-list { display: grid; gap: 1px; background: var(--line); border-block: 1px solid var(--line); }
+.opt {
+  background: var(--bg);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--s-4);
+  padding: var(--s-4) var(--gutter);
+  text-align: left;
+}
+.opt .idx { padding-top: 3px; }
+.opt .n { font-size: 1.05rem; font-weight: 500; letter-spacing: -0.015em; }
+.opt .h { color: var(--dim); font-size: var(--t-small); margin-top: 3px; }
+.opt .mark { color: var(--accent); opacity: 0; transition: opacity var(--d-1) var(--ease); }
+.opt.is-on .mark { opacity: 1; }
+
+/* Galeria de templates: escolhe-se olhando, não lendo. */
+.tpl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  gap: var(--s-3);
+}
+.tpl {
+  text-align: left;
+  position: relative;
+}
+.tpl .frame {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  display: grid; place-items: center;
+  transition: border-color var(--d-2) var(--ease), transform var(--d-2) var(--ease);
+}
+.tpl canvas { width: 100%; height: auto; display: block; }
+.tpl.is-on .frame { border-color: var(--accent); }
+.tpl:active .frame { transform: scale(0.98); }
+.tpl .cap { padding-top: var(--s-2); display: flex; justify-content: space-between; gap: var(--s-2); }
+.tpl.is-on .cap .micro { color: var(--accent); }
+
+/* Chips horizontais roláveis — filtros e formatos */
+.chips {
+  display: flex; gap: var(--s-2);
+  overflow-x: auto; scrollbar-width: none;
+  padding-block: var(--s-1);
+  margin-inline: calc(var(--gutter) * -1);
+  padding-inline: var(--gutter);
+  scroll-snap-type: x proximity;
+}
+.chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex: none;
+  padding: 9px var(--s-4);
+  border: 1px solid var(--line);
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: var(--track-micro);
+  white-space: nowrap;
+  scroll-snap-align: start;
+  transition: color var(--d-1) var(--ease), border-color var(--d-1) var(--ease), background var(--d-1) var(--ease);
+}
+.chip.is-on { color: var(--bg); background: var(--fg); border-color: var(--fg); }
+
+/* ---------------------------------------------------------
+   Biblioteca de mídia
+   --------------------------------------------------------- */
+.media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 2px;
+}
+.mcell {
+  position: relative;
+  aspect-ratio: 1;
+  background: var(--bg-1);
+  overflow: hidden;
+  border: 1px solid transparent;
+  transition: border-color var(--d-1) var(--ease);
+}
+.mcell img { width: 100%; height: 100%; object-fit: cover; }
+.mcell.is-on { border-color: var(--accent); }
+.mcell .tag {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 4px 6px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.85));
+  color: var(--fg);
+}
+.mcell .pick {
+  position: absolute; top: 6px; right: 6px;
+  width: 18px; height: 18px; border: 1px solid var(--fg);
+  background: rgba(0,0,0,0.4);
+  display: grid; place-items: center;
+  opacity: 0; transition: opacity var(--d-1) var(--ease);
+}
+.mcell.is-on .pick { opacity: 1; background: var(--accent); border-color: var(--accent); color: var(--bg); }
+
+/* Área de soltar arquivo */
+.drop {
+  border: 1px dashed var(--line);
+  padding: var(--s-10) var(--s-4);
+  text-align: center;
+  color: var(--dim);
+  transition: border-color var(--d-2) var(--ease), background var(--d-2) var(--ease);
+}
+.drop.is-over { border-color: var(--accent); background: var(--bg-1); }
+
+/* ---------------------------------------------------------
+   Briefings
+   --------------------------------------------------------- */
+.brief {
+  border: 1px solid var(--line);
+  padding: var(--s-5);
+  margin-bottom: var(--s-3);
+  background: var(--bg-1);
+}
+.brief .src {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--accent);
+  margin-bottom: var(--s-3);
+}
+.brief .b { font-size: var(--t-small); color: var(--dim); line-height: 1.55; white-space: pre-wrap; }
+.brief .b.is-clamped { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ---------------------------------------------------------
+   Login
+   --------------------------------------------------------- */
+.gate {
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  position: relative; z-index: 2;
+}
+/* pointer-events:none é obrigatório nos dois: são camadas
+   decorativas em position:fixed dentro do mesmo contexto de
+   empilhamento do formulário. Sem isso elas comem o toque e
+   ninguém consegue logar. */
+.gate-bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.gate-bg img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+  opacity: 0.28;
+  filter: grayscale(1) contrast(1.1);
+  transform: scale(1.06);
+  animation: gate-drift 26s var(--ease-soft) infinite alternate;
+}
+@keyframes gate-drift {
+  to { transform: scale(1.14) translate3d(-2%, -1.5%, 0); }
+}
+.gate-scrim {
+  position: fixed; inset: 0; z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 90% 70% at 50% 45%, rgba(0,0,0,0.55), rgba(0,0,0,0.92));
+}
+.gate-main {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: var(--s-16) var(--gutter);
+  max-width: 460px; width: 100%; margin: 0 auto;
+}
+.gate-logo { width: min(58vw, 210px); margin-bottom: var(--s-10); }
+.gate-logo img { width: 100%; filter: brightness(0) invert(1) brightness(0.96) sepia(0.07); }
+.gate-foot {
+  position: relative; z-index: 2;
+  padding: var(--s-5) var(--gutter) calc(var(--s-5) + var(--safe-b));
+  border-top: 1px solid var(--line);
+}
+.gate-err {
+  border-left: 2px solid var(--danger);
+  padding: var(--s-3) var(--s-4);
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+  color: var(--fg);
+  margin-bottom: var(--s-4);
+  font-size: var(--t-small);
+}
+
+/* ---------------------------------------------------------
+   Teaser — o botão do administrativo
+   --------------------------------------------------------- */
+.teaser-art {
+  position: relative;
+  border: 1px solid var(--line);
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  margin-bottom: var(--s-6);
+  background: var(--bg-2);
+}
+/* Um fantasma da interface futura, borrado. Diz "existe e
+   está vindo" muito melhor do que um ícone de cadeado. */
+.teaser-ghost {
+  position: absolute; inset: 0;
+  padding: var(--s-4);
+  display: grid; gap: 6px; align-content: start;
+  filter: blur(3.5px);
+  opacity: 0.5;
+  user-select: none;
+}
+.teaser-ghost .g {
+  height: 9px; background: var(--dim); opacity: 0.4;
+}
+.teaser-ghost .g.w1 { width: 42%; }
+.teaser-ghost .g.w2 { width: 78%; }
+.teaser-ghost .g.w3 { width: 60%; background: var(--accent); opacity: 0.55; }
+.teaser-ghost .g.w4 { width: 88%; }
+.teaser-ghost .g.w5 { width: 34%; }
+.teaser-ghost .bars { display: flex; gap: 5px; align-items: flex-end; height: 46px; margin-top: 10px; }
+.teaser-ghost .bars i { flex: 1; background: var(--dim); opacity: 0.35; }
+.teaser-badge {
+  position: absolute; inset: auto 0 0 0;
+  padding: var(--s-3) var(--s-4);
+  background: linear-gradient(transparent, rgba(0,0,0,0.9) 60%);
+  color: var(--accent);
+}
+
+/* ---------------------------------------------------------
+   Lista de recursos (usada no teaser e no sobre)
+   --------------------------------------------------------- */
+.flist { display: grid; gap: 0; }
+.flist li {
+  list-style: none;
+  display: grid; grid-template-columns: auto 1fr; gap: var(--s-4);
+  padding: var(--s-4) 0;
+  border-top: 1px solid var(--line);
+  align-items: baseline;
+}
+.flist li:last-child { border-bottom: 1px solid var(--line); }
+.flist .n { color: var(--accent); }
+.flist .d { color: var(--dim); font-size: var(--t-small); margin-top: 3px; }
+
+/* ---------------------------------------------------------
+   Rodapé com marquee
+   --------------------------------------------------------- */
+.appfoot {
+  padding: var(--s-10) 0 var(--s-6);
+  border-top: 1px solid var(--line);
+  margin-top: var(--s-16);
+}
+.appfoot .marquee { color: var(--faint); padding-block: var(--s-3); }
+.appfoot .marquee span { font-family: var(--serif); font-size: 0.95rem; letter-spacing: 0.3em; text-transform: lowercase; }
+
+/* ---------------------------------------------------------
+   Telas maiores: o app não deve virar uma coluna esticada.
+   --------------------------------------------------------- */
+@media (min-width: 900px) {
+  :root { --tabbar-h: 0px; }
+  .tabbar {
+    position: sticky; top: calc(var(--header-h) + var(--safe-t));
+    height: 52px; padding-bottom: 0;
+    grid-auto-columns: max-content;
+    justify-content: center;
+    gap: var(--s-8);
+    border-top: 0; border-bottom: 1px solid var(--line);
+  }
+  .tab { flex-direction: row; gap: var(--s-2); padding-inline: var(--s-2); }
+  .tab .micro { font-size: var(--t-micro); }
+  .tab::after { top: auto; bottom: 0; }
+  .page { padding-bottom: var(--s-20); }
+  .toast-rail { bottom: var(--s-8); }
+}

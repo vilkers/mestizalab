@@ -1,0 +1,15 @@
+{
+  "name": "Mestiza Lab",
+  "short_name": "Mestiza",
+  "description": "Criação e publicação de conteúdo do estúdio Mestiza.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "assets/logo/logo-site-flat-tight.png", "sizes": "787x795", "type": "image/png", "purpose": "any" }
+  ]
+}

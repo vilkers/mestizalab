@@ -1,0 +1,102 @@
+/* =========================================================
+   Mestiza Lab — design tokens
+   Herda 1:1 o sistema de mestiza.work. Nada aqui é invenção
+   nova: cor, tipo e curva de easing vêm do site.
+   O que é novo é a escala — um editor precisa de mais
+   degraus de espaço e de tipo do que um site de 4 páginas.
+   ========================================================= */
+
+:root {
+  /* ---- Cor: paleta da marca, intocada ---- */
+  --bg:        #000000;
+  --bg-1:      #0b0b0b;   /* superfícies elevadas (cards, sheets) */
+  --bg-2:      #131313;   /* inputs, wells */
+  --bg-3:      #1c1c1c;   /* hover de superfície */
+  --fg:        #f4f1ea;   /* off-white quente — nunca #fff puro */
+  --dim:       #8a867d;   /* texto secundário */
+  --faint:     #4a4843;   /* placeholder, disabled */
+  --line:      #232323;   /* hairline padrão */
+  --line-soft: #191919;
+  --accent:    #c9a86a;   /* dourado metálico */
+  --accent-dk: #8d7446;
+
+  /* Estados. Dessaturados de propósito: alerta não pode
+     gritar mais alto que o dourado da marca. */
+  --ok:        #7d9b6a;
+  --warn:      #c9a86a;
+  --danger:    #b4685c;
+
+  /* ---- Tipografia ---- */
+  --serif: 'STIX Two Text', Georgia, 'Times New Roman', serif;
+  --mono:  'Spline Sans Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* Display — serif, negativo no tracking, line-height fechado.
+     É o gesto do site: tipo grande respirando pouco. */
+  --t-display: clamp(2.75rem, 13vw, 6rem);
+  --t-h1:      clamp(2rem, 8.5vw, 3.5rem);
+  --t-h2:      clamp(1.5rem, 5.5vw, 2.25rem);
+  --t-h3:      1.25rem;
+  --t-body:    1rem;
+  --t-small:   0.875rem;
+
+  /* Micro — mono, uppercase, tracking largo. O contraponto
+     que faz o serif parecer maior do que é. */
+  --t-micro:   0.6875rem;   /* 11px — labels, tabs, meta */
+  --t-nano:    0.625rem;    /* 10px — numeração, timestamps */
+  --track-micro: 0.16em;
+  --track-nano:  0.22em;
+
+  /* ---- Espaço: escala de 4px ---- */
+  --s-1:  4px;
+  --s-2:  8px;
+  --s-3:  12px;
+  --s-4:  16px;
+  --s-5:  20px;
+  --s-6:  24px;
+  --s-8:  32px;
+  --s-10: 40px;
+  --s-12: 48px;
+  --s-16: 64px;
+  --s-20: 80px;
+  --s-24: 96px;
+
+  --gutter: clamp(16px, 5vw, 40px);
+  --maxw:   1400px;
+
+  /* ---- Motion: a curva do site é lei ---- */
+  --ease:      cubic-bezier(0.16, 1, 0.3, 1);   /* expo-out */
+  --ease-in:   cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --d-1: 180ms;   /* micro-feedback: tap, toggle */
+  --d-2: 320ms;   /* elementos entrando */
+  --d-3: 620ms;   /* transição de view */
+  --d-4: 900ms;   /* reveals de página */
+
+  /* ---- Forma ---- */
+  --r-0:  0px;      /* padrão: quina viva. É editorial, não app-store. */
+  --r-1:  2px;
+  --r-2:  4px;
+  --r-pill: 999px;
+  --hair: 1px solid var(--line);
+
+  /* ---- Chrome do app ---- */
+  --header-h: 56px;
+  --tabbar-h: 64px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+
+  --z-canvas: 1;
+  --z-sticky: 50;
+  --z-header: 100;
+  --z-tabbar: 100;
+  --z-sheet:  300;
+  --z-toast:  400;
+  --z-modal:  500;
+}
+
+/* O app é dark-only por decisão de marca: as peças são
+   compostas sobre preto e o editor precisa que o entorno
+   não minta sobre o contraste da arte. Declaramos isso ao
+   browser para que os controles nativos acompanhem. */
+:root { color-scheme: dark; }

@@ -1,0 +1,62 @@
+#=========================================================
+# Mestiza Lab — Worker
+#
+# Antes do primeiro deploy, troque `database_id` pelo valor
+# que este comando gera:
+#
+#   npx wrangler d1 create mestiza-lab
+#   npx wrangler r2 bucket create mestiza-lab-media
+#
+# Depois:
+#   npx wrangler d1 execute mestiza-lab --remote --file=schema.sql
+#   npx wrangler deploy
+#=========================================================
+
+name = "mestiza-lab"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+
+# O app e a API sao UM Worker so.
+#
+# Poderiam ser dois (Pages para os arquivos + Worker para a
+# API), mas ai o cookie de sessao precisaria de SameSite=None
+# e de CORS com credenciais — mais peca movel para nenhum
+# ganho. Assim: uma origem, um deploy, um comando.
+#
+# Os arquivos estaticos sao servidos primeiro; o que nao
+# casar com nenhum arquivo cai no Worker, que responde /api/*.
+[assets]
+directory = "../app"
+binding = "ASSETS"
+not_found_handling = "none"
+
+# Dominio proprio (opcional). Sem isso o app ja responde em
+# mestiza-lab.<sua-conta>.workers.dev.
+#
+# [[routes]]
+# pattern = "lab.mestiza.work/*"
+# zone_name = "mestiza.work"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "mestiza-lab"
+database_id = "SUBSTITUA_PELO_ID_DO_D1"   # ver DEPLOY.md, passo 2
+
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "mestiza-lab-media"
+
+[vars]
+# Deixe vazio em producao (mesma origem). Preencha so para
+# desenvolvimento local, com a origem exata do app.
+ALLOWED_ORIGINS = ""
+# Vazio = deriva da propria URL. Preencha se o Worker
+# responder num host diferente do que serve os arquivos.
+PUBLIC_BASE = ""
+
+# Faxina diaria de sessoes vencidas.
+[triggers]
+crons = ["17 4 * * *"]
+
+[observability]
+enabled = true

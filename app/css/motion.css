@@ -1,0 +1,227 @@
+/* =========================================================
+   Mestiza Lab — motion
+   Uma regra acima de todas: nada faz fade sozinho.
+   Fade puro é o default de todo template — e é justamente
+   por isso que parece template. Aqui tudo entra por
+   máscara (clip-path) ou por deslocamento com máscara,
+   sempre na curva expo-out da marca.
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   1. Reveal por máscara — o gesto principal
+   O texto sobe de dentro de um corte, como bloco de chumbo
+   saindo da caixa. Aplicado por linha, com stagger.
+   --------------------------------------------------------- */
+.reveal { overflow: hidden; display: block; }
+.reveal > * {
+  display: block;
+  transform: translateY(105%);
+  transition: transform var(--d-4) var(--ease);
+  transition-delay: var(--delay, 0ms);
+}
+.is-in .reveal > *,
+.reveal.is-in > * { transform: translateY(0); }
+
+/* Variante horizontal — wipe da esquerda. Para réguas,
+   barras de progresso e underlines. */
+.wipe {
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path var(--d-3) var(--ease);
+  transition-delay: var(--delay, 0ms);
+}
+.is-in .wipe, .wipe.is-in { clip-path: inset(0 0 0 0); }
+
+/* ---------------------------------------------------------
+   2. Entrada de blocos — deslocamento curto + opacidade.
+   Usado onde reveal por máscara não cabe (cards, grids).
+   8px é deliberado: perto o bastante pra ler como assentar,
+   não como voar.
+   --------------------------------------------------------- */
+.rise {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity var(--d-3) var(--ease), transform var(--d-3) var(--ease);
+  transition-delay: var(--delay, 0ms);
+}
+.is-in .rise, .rise.is-in { opacity: 1; transform: none; }
+
+/* ---------------------------------------------------------
+   3. Stagger
+   Índices em vez de nth-child no CSS: o JS carimba --delay.
+   Fallback para listas estáticas abaixo.
+   --------------------------------------------------------- */
+.stagger > *:nth-child(1) { --delay: 0ms; }
+.stagger > *:nth-child(2) { --delay: 60ms; }
+.stagger > *:nth-child(3) { --delay: 120ms; }
+.stagger > *:nth-child(4) { --delay: 180ms; }
+.stagger > *:nth-child(5) { --delay: 240ms; }
+.stagger > *:nth-child(6) { --delay: 300ms; }
+.stagger > *:nth-child(7) { --delay: 360ms; }
+.stagger > *:nth-child(8) { --delay: 420ms; }
+
+/* ---------------------------------------------------------
+   4. Linha que inverte no toque
+   O comportamento de lista mais forte que existe num
+   layout preto e branco: a linha inteira troca de polaridade.
+   --------------------------------------------------------- */
+.invert-row {
+  position: relative;
+  isolation: isolate;
+  transition: color var(--d-2) var(--ease);
+}
+.invert-row::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: var(--fg);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform var(--d-2) var(--ease);
+  z-index: -1;
+}
+.invert-row.is-active,
+.invert-row:active { color: var(--bg); }
+.invert-row.is-active::before,
+.invert-row:active::before { transform: scaleY(1); }
+@media (hover: hover) {
+  .invert-row:hover { color: var(--bg); }
+  .invert-row:hover::before { transform: scaleY(1); }
+}
+
+/* ---------------------------------------------------------
+   5. Transição de view
+   Sai por corte (in), entra por máscara (out). Assimétrico
+   de propósito: sair rápido, entrar com peso.
+   --------------------------------------------------------- */
+.view {
+  animation: view-in var(--d-3) var(--ease) both;
+}
+@keyframes view-in {
+  from { opacity: 0; transform: translateY(10px); clip-path: inset(0 0 6% 0); }
+  to   { opacity: 1; transform: none;             clip-path: inset(0 0 0 0); }
+}
+.view--leaving { animation: view-out var(--d-1) var(--ease-in) both; }
+@keyframes view-out {
+  to { opacity: 0; transform: translateY(-6px); }
+}
+
+/* ---------------------------------------------------------
+   6. Sheet — folha que sobe do rodapé
+   Único padrão modal do app. No celular, decisão sempre
+   acontece na zona do polegar.
+   --------------------------------------------------------- */
+.sheet-scrim {
+  position: fixed; inset: 0; z-index: var(--z-sheet);
+  background: rgba(0,0,0,0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  opacity: 0;
+  transition: opacity var(--d-2) var(--ease);
+}
+.sheet-scrim.is-open { opacity: 1; }
+
+.sheet {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  z-index: calc(var(--z-sheet) + 1);
+  max-height: 88svh;
+  display: flex; flex-direction: column;
+  background: var(--bg-1);
+  border-top: 1px solid var(--line);
+  transform: translateY(101%);
+  transition: transform var(--d-3) var(--ease);
+  padding-bottom: var(--safe-b);
+}
+.sheet.is-open { transform: translateY(0); }
+.sheet.is-dragging { transition: none; }
+
+.sheet-grip {
+  width: 36px; height: 3px; border-radius: 2px;
+  background: var(--faint);
+  margin: var(--s-3) auto var(--s-2);
+  flex: none;
+}
+.sheet-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s-4);
+  padding: var(--s-2) var(--gutter) var(--s-4);
+  border-bottom: 1px solid var(--line);
+  flex: none;
+}
+.sheet-body {
+  padding: var(--s-5) var(--gutter) var(--s-8);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* ---------------------------------------------------------
+   7. Marquee — a régua viva do rodapé
+   --------------------------------------------------------- */
+.marquee {
+  display: flex; overflow: hidden; width: 100%;
+  user-select: none; -webkit-user-select: none;
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.marquee > * {
+  flex: none; min-width: 100%;
+  display: flex; gap: var(--s-8);
+  animation: marquee 38s linear infinite;
+  white-space: nowrap;
+}
+@keyframes marquee { to { transform: translateX(-100%); } }
+
+/* ---------------------------------------------------------
+   8. Toast
+   --------------------------------------------------------- */
+.toast-rail {
+  position: fixed; z-index: var(--z-toast);
+  left: 0; right: 0;
+  bottom: calc(var(--tabbar-h) + var(--safe-b) + var(--s-4));
+  display: flex; flex-direction: column; align-items: center; gap: var(--s-2);
+  pointer-events: none;
+  padding-inline: var(--gutter);
+}
+.toast {
+  max-width: 480px; width: 100%;
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  background: var(--fg); color: var(--bg);
+  border-radius: var(--r-0);
+  transform: translateY(12px); opacity: 0;
+  transition: transform var(--d-2) var(--ease), opacity var(--d-2) var(--ease);
+}
+.toast.is-in { transform: none; opacity: 1; }
+.toast--bad  { background: var(--danger); color: var(--fg); }
+.toast--gold { background: var(--accent); }
+
+/* ---------------------------------------------------------
+   9. Spinner — traço de 1px girando. Nada de círculo grosso.
+   --------------------------------------------------------- */
+.spin {
+  width: 16px; height: 16px; flex: none;
+  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Barra de progresso determinada */
+.progress { height: 1px; background: var(--line); overflow: hidden; }
+.progress > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width var(--d-1) linear; }
+
+/* ---------------------------------------------------------
+   10. Acessibilidade
+   Quem pede menos movimento recebe o layout inteiro parado
+   e legível — não uma versão quebrada.
+   --------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal > *, .rise { transform: none !important; opacity: 1 !important; }
+  .wipe { clip-path: none !important; }
+  .marquee > * { animation: none !important; }
+}

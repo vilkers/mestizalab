@@ -1,0 +1,264 @@
+/* =========================================================
+   Mestiza Lab — base
+   Reset + primitivas tipográficas + controles.
+   ========================================================= */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  /* Sem scroll-behavior:smooth global — no editor isso briga
+     com o pan do canvas. Onde precisa, é aplicado localmente. */
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--serif);
+  font-size: var(--t-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  overscroll-behavior-y: none;   /* mata o bounce que atrapalha o pull do sheet */
+  min-height: 100svh;
+}
+
+a { color: inherit; text-decoration: none; }
+img, svg, video, canvas { display: block; max-width: 100%; }
+button, input, textarea, select { font: inherit; color: inherit; background: none; border: none; }
+button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+::selection { background: var(--accent); color: var(--bg); }
+
+/* Foco visível só pra teclado — no toque ele só suja a tela. */
+:focus { outline: none; }
+:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
+
+/* =========================================================
+   Tipografia
+   ========================================================= */
+
+.display, .h1, .h2, .h3 {
+  font-family: var(--serif);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 0.94;
+}
+.display { font-size: var(--t-display); }
+.h1      { font-size: var(--t-h1); }
+.h2      { font-size: var(--t-h2); letter-spacing: -0.02em; line-height: 1.02; }
+.h3      { font-size: var(--t-h3); letter-spacing: -0.01em; line-height: 1.15; font-weight: 500; }
+
+/* O itálico dourado é a assinatura da casa. Usar com parcimônia:
+   uma palavra por bloco, nunca uma frase inteira. */
+.accent  { font-style: italic; font-weight: 500; color: var(--accent); }
+
+/* Micro-UI: mono, caixa alta, tracking largo. Tudo que é
+   rótulo, meta ou navegação vive aqui. */
+.micro {
+  font-family: var(--mono);
+  font-size: var(--t-micro);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: var(--track-micro);
+  line-height: 1;
+}
+.nano {
+  font-family: var(--mono);
+  font-size: var(--t-nano);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: var(--track-nano);
+  line-height: 1;
+  color: var(--dim);
+}
+.dim   { color: var(--dim); }
+.faint { color: var(--faint); }
+
+/* Numeração de índice — 01 / 02 / 03. Estrutura visível. */
+.idx {
+  font-family: var(--mono);
+  font-size: var(--t-nano);
+  letter-spacing: 0.1em;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* =========================================================
+   Regras / estrutura
+   ========================================================= */
+.rule { height: 1px; background: var(--line); border: 0; }
+.rule--soft { background: var(--line-soft); }
+
+/* Hairline que se desenha ao entrar na tela. */
+.rule--draw { transform: scaleX(0); transform-origin: left; }
+.is-in .rule--draw { transform: scaleX(1); transition: transform var(--d-4) var(--ease); }
+
+/* =========================================================
+   Botões
+   ========================================================= */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65em;
+  min-height: 44px;                 /* alvo de toque mínimo */
+  padding: 0 var(--s-5);
+  border: 1px solid var(--line);
+  border-radius: var(--r-0);
+  font-family: var(--mono);
+  font-size: var(--t-micro);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: var(--track-micro);
+  color: var(--fg);
+  background: transparent;
+  transition:
+    background var(--d-1) var(--ease),
+    color var(--d-1) var(--ease),
+    border-color var(--d-1) var(--ease),
+    opacity var(--d-1) var(--ease);
+}
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: 0.35; pointer-events: none; }
+
+/* Inversão como estado primário — preto/off-white trocam de lado. */
+.btn--solid { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.btn--gold  { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.btn--ghost { border-color: transparent; color: var(--dim); }
+.btn--danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 40%, transparent); }
+.btn--block { width: 100%; }
+.btn--sm { min-height: 36px; padding: 0 var(--s-3); font-size: var(--t-nano); }
+
+@media (hover: hover) {
+  .btn:hover       { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+  .btn--solid:hover{ background: transparent; color: var(--fg); }
+  .btn--gold:hover { background: transparent; color: var(--accent); }
+  .btn--ghost:hover{ background: transparent; color: var(--fg); }
+  .btn--danger:hover { background: var(--danger); color: var(--bg); border-color: var(--danger); }
+}
+
+/* Pill com ponto dourado — vem direto do header do site. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.6em 1.2em;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  transition: border-color var(--d-1) var(--ease), background var(--d-1) var(--ease), color var(--d-1) var(--ease);
+}
+.pill .dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--accent); flex: none;
+}
+
+/* Ícone-botão quadrado, alvo de 44px. */
+.iconbtn {
+  width: 44px; height: 44px;
+  display: grid; place-items: center;
+  color: var(--fg);
+  transition: color var(--d-1) var(--ease), background var(--d-1) var(--ease);
+}
+.iconbtn:active { background: var(--bg-3); }
+.iconbtn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.25; }
+
+/* =========================================================
+   Campos
+   ========================================================= */
+.field { display: block; margin-bottom: var(--s-5); }
+.field > .micro { display: block; color: var(--dim); margin-bottom: var(--s-2); }
+
+.input, .textarea, .select {
+  width: 100%;
+  min-height: 48px;
+  padding: var(--s-3) var(--s-4);
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  color: var(--fg);
+  font-family: var(--serif);
+  font-size: 1rem;              /* 16px trava o zoom automático do iOS */
+  border-radius: var(--r-0);
+  transition: border-color var(--d-1) var(--ease), background var(--d-1) var(--ease);
+}
+.input:focus, .textarea:focus, .select:focus {
+  border-color: var(--accent);
+  background: var(--bg-1);
+}
+.input::placeholder, .textarea::placeholder { color: var(--faint); }
+.textarea { min-height: 120px; resize: vertical; line-height: 1.55; }
+
+.select {
+  appearance: none;
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background-image: linear-gradient(45deg, transparent 50%, var(--dim) 50%),
+                    linear-gradient(135deg, var(--dim) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 21px, calc(100% - 13px) 21px;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: var(--s-10);
+}
+
+/* Range com cara de régua de estúdio, não de widget de sistema. */
+.range { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; background: transparent; }
+.range::-webkit-slider-runnable-track { height: 1px; background: var(--line); }
+.range::-moz-range-track { height: 1px; background: var(--line); }
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 14px; height: 14px; margin-top: -6.5px;
+  background: var(--accent); border: 0; border-radius: 50%;
+}
+.range::-moz-range-thumb { width: 14px; height: 14px; background: var(--accent); border: 0; border-radius: 50%; }
+
+/* Switch */
+.switch { position: relative; width: 42px; height: 24px; flex: none; }
+.switch input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.switch .track {
+  position: absolute; inset: 0;
+  border: 1px solid var(--line); border-radius: var(--r-pill);
+  background: var(--bg-2);
+  transition: background var(--d-1) var(--ease), border-color var(--d-1) var(--ease);
+  pointer-events: none;
+}
+.switch .knob {
+  position: absolute; top: 5px; left: 5px;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--faint);
+  transition: transform var(--d-2) var(--ease), background var(--d-1) var(--ease);
+  pointer-events: none;
+}
+.switch input:checked ~ .track { border-color: var(--accent); }
+.switch input:checked ~ .knob  { transform: translateX(18px); background: var(--accent); }
+
+/* =========================================================
+   Utilitários
+   ========================================================= */
+.row  { display: flex; align-items: center; gap: var(--s-3); }
+.row--between { justify-content: space-between; }
+.col  { display: flex; flex-direction: column; }
+.grow { flex: 1; min-width: 0; }
+.wrap-pad { padding-inline: var(--gutter); }
+.stack > * + * { margin-top: var(--s-4); }
+.hidden { display: none !important; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.clamp-2 {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Grão. 3% de opacidade — o suficiente pra tirar o plástico
+   do preto chapado sem virar textura. */
+.grain {
+  position: fixed; inset: 0; z-index: 1;
+  pointer-events: none; opacity: 0.032;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}

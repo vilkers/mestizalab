@@ -1,0 +1,300 @@
+/* =========================================================
+   Mestiza Lab — editor
+   Layout de celular: palco em cima, controles no polegar.
+   O palco nunca é coberto pelo painel — ele encolhe. Editar
+   às cegas embaixo de um teclado é o pecado capital aqui.
+   ========================================================= */
+
+.ed {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100svh;
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------
+   Barra do editor
+   --------------------------------------------------------- */
+.ed-bar {
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  align-items: center;
+  gap: var(--s-2);
+  height: calc(var(--header-h) + var(--safe-t));
+  padding-top: var(--safe-t);
+  padding-inline: max(var(--s-2), calc(var(--gutter) - 12px));
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+}
+.ed-name {
+  min-width: 0;
+  background: none; border: 0;
+  font-family: var(--serif);
+  font-size: 1rem; font-weight: 500;
+  letter-spacing: -0.015em;
+  color: var(--fg);
+  text-align: center;
+  padding: 6px;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--d-1) var(--ease);
+}
+.ed-name:focus { border-bottom-color: var(--accent); }
+.ed-actions { display: flex; align-items: center; }
+.ed-actions .iconbtn:disabled { opacity: 0.28; pointer-events: none; }
+
+/* ---------------------------------------------------------
+   Palco
+   --------------------------------------------------------- */
+.ed-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: var(--s-4);
+  min-height: 0;
+  overflow: hidden;
+  background:
+    linear-gradient(var(--bg-1) 0 0) padding-box,
+    /* xadrez discreto: só aparece atrás de máscara transparente */
+    conic-gradient(from 90deg at 1px 1px, #0000 25%, #0e0e0e 0) 0 0/16px 16px;
+}
+.ed-canvas-wrap {
+  position: relative;
+  max-width: 100%; max-height: 100%;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+  touch-action: none;   /* o pan/pinch é nosso, não do browser */
+}
+.ed-canvas { display: block; max-width: 100%; max-height: 100%; }
+
+/* Overlay de seleção e guias — SVG por cima do canvas */
+.ed-overlay { position: absolute; inset: 0; pointer-events: none; }
+.ed-overlay rect.sel {
+  fill: none; stroke: var(--accent); stroke-width: 1.25;
+  stroke-dasharray: 5 4;
+  vector-effect: non-scaling-stroke;
+}
+.ed-overlay rect.safe {
+  fill: none; stroke: rgba(201,168,106,0.22); stroke-width: 1;
+  stroke-dasharray: 3 5;
+  vector-effect: non-scaling-stroke;
+}
+.ed-overlay line.thirds {
+  stroke: rgba(244,241,234,0.12); stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Indicador de slide do carrossel */
+.ed-slides {
+  position: absolute; left: 0; right: 0; bottom: var(--s-3);
+  display: flex; justify-content: center; gap: 6px;
+  pointer-events: none;
+}
+.ed-slides i {
+  width: 16px; height: 2px; background: var(--faint);
+  transition: background var(--d-2) var(--ease), width var(--d-2) var(--ease);
+}
+.ed-slides i.is-on { background: var(--accent); width: 26px; }
+
+/* Setas de navegação do carrossel */
+.ed-nav {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 40px; height: 56px;
+  display: grid; place-items: center;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(6px);
+  color: var(--fg);
+}
+.ed-nav--prev { left: 0; }
+.ed-nav--next { right: 0; }
+.ed-nav:disabled { opacity: 0; pointer-events: none; }
+
+/* ---------------------------------------------------------
+   Painel inferior
+   --------------------------------------------------------- */
+.ed-panel {
+  border-top: 1px solid var(--line);
+  background: var(--bg);
+  padding-bottom: var(--safe-b);
+  display: flex; flex-direction: column;
+  max-height: 52svh;
+}
+
+/* Abas do painel */
+.ed-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto; scrollbar-width: none;
+  flex: none;
+}
+.ed-tabs::-webkit-scrollbar { display: none; }
+.ed-tab {
+  flex: none;
+  padding: var(--s-4) var(--s-4);
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: var(--track-micro);
+  position: relative;
+  transition: color var(--d-1) var(--ease);
+}
+.ed-tab.is-on { color: var(--fg); }
+.ed-tab::after {
+  content: ''; position: absolute; left: var(--s-4); right: var(--s-4); bottom: -1px;
+  height: 1px; background: var(--accent);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform var(--d-2) var(--ease);
+}
+.ed-tab.is-on::after { transform: scaleX(1); }
+
+.ed-body {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: var(--s-5) var(--gutter) var(--s-6);
+}
+
+/* ---------------------------------------------------------
+   Campos do editor
+   --------------------------------------------------------- */
+.ed-field { margin-bottom: var(--s-5); }
+.ed-field > label { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-3); margin-bottom: var(--s-2); }
+.ed-field > label .micro { color: var(--dim); }
+.ed-field .val { font-family: var(--mono); font-size: var(--t-nano); color: var(--accent); font-variant-numeric: tabular-nums; }
+
+/* Linha de controles compactos (alinhamento, peso...) */
+.seg { display: flex; border: 1px solid var(--line); }
+.seg button {
+  flex: 1; min-height: 40px;
+  color: var(--dim);
+  font-family: var(--mono); font-size: var(--t-nano);
+  text-transform: uppercase; letter-spacing: 0.12em;
+  border-right: 1px solid var(--line);
+  transition: background var(--d-1) var(--ease), color var(--d-1) var(--ease);
+}
+.seg button:last-child { border-right: 0; }
+.seg button.is-on { background: var(--fg); color: var(--bg); }
+
+/* Os chips sangram para as bordas na PÁGINA (gutter negativo),
+   mas dentro do painel do editor isso os joga para fora da
+   área rolável e eles aparecem cortados. Aqui ficam contidos. */
+.ed-body .chips { margin-inline: 0; padding-inline: 0; }
+
+/* Amostras de cor */
+.swatches { display: flex; gap: var(--s-2); flex-wrap: wrap; }
+.sw {
+  width: 34px; height: 34px;
+  border: 1px solid var(--line);
+  position: relative;
+  transition: transform var(--d-1) var(--ease);
+}
+.sw.is-on { border-color: var(--fg); }
+.sw.is-on::after {
+  content: ''; position: absolute; inset: -4px; border: 1px solid var(--accent);
+}
+.sw:active { transform: scale(0.92); }
+
+/* Lista de camadas */
+.layers { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); }
+.layer {
+  background: var(--bg);
+  display: grid; grid-template-columns: 22px 1fr auto auto; align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  text-align: left;
+  color: var(--dim);
+  transition: background var(--d-1) var(--ease), color var(--d-1) var(--ease);
+}
+.layer.is-on { background: var(--bg-3); color: var(--fg); }
+.layer .k { color: var(--faint); }
+.layer .nm { font-family: var(--serif); font-size: 0.95rem; }
+.layer .off { opacity: 0.4; }
+
+/* Slides do carrossel na aba de conteúdo */
+.blocos { display: grid; gap: var(--s-3); }
+.bloco {
+  border: 1px solid var(--line);
+  padding: var(--s-4);
+  background: var(--bg-1);
+}
+.bloco .bh { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--s-3); }
+
+/* ---------------------------------------------------------
+   Aba de vídeo
+   --------------------------------------------------------- */
+.vid-drop {
+  border: 1px dashed var(--line);
+  padding: var(--s-10) var(--s-4);
+  text-align: center;
+  color: var(--dim);
+}
+.vid-meta {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; background: var(--line);
+  border: 1px solid var(--line);
+  margin-bottom: var(--s-5);
+}
+.vid-meta > div { background: var(--bg); padding: var(--s-3); }
+.vid-meta .k { color: var(--faint); display: block; margin-bottom: 4px; }
+.vid-meta .v { font-family: var(--mono); font-size: 0.8rem; color: var(--fg); }
+
+.cap-note {
+  border-left: 2px solid var(--accent);
+  padding: var(--s-3) var(--s-4);
+  background: var(--bg-1);
+  color: var(--dim);
+  font-size: var(--t-small);
+  line-height: 1.5;
+  margin-bottom: var(--s-5);
+}
+.cap-note strong { color: var(--fg); font-weight: 600; }
+
+/* Barra de export ocupando o rodapé do painel */
+.ed-cta {
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-2);
+  padding: var(--s-4) var(--gutter);
+  border-top: 1px solid var(--line);
+  flex: none;
+}
+
+/* ---------------------------------------------------------
+   Edição de texto no lugar
+   Um textarea invisível sobreposto ao canvas seria o ideal
+   tipograficamente, mas quebra em iOS quando o teclado sobe.
+   Editamos no painel e o palco reflete a cada tecla — que é
+   rápido o bastante para parecer direto.
+   --------------------------------------------------------- */
+.ed-textarea {
+  width: 100%;
+  min-height: 90px;
+  padding: var(--s-3) var(--s-4);
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  color: var(--fg);
+  font-family: var(--serif);
+  font-size: 1rem;
+  line-height: 1.45;
+  resize: vertical;
+}
+.ed-textarea:focus { border-color: var(--accent); }
+.ed-textarea--mono { font-family: var(--mono); font-size: 0.9rem; letter-spacing: 0.06em; }
+
+/* ---------------------------------------------------------
+   Desktop: painel vira coluna lateral
+   --------------------------------------------------------- */
+@media (min-width: 900px) {
+  .ed {
+    grid-template-rows: auto 1fr;
+    grid-template-columns: 1fr 380px;
+    grid-template-areas: 'bar bar' 'stage panel';
+  }
+  .ed-bar { grid-area: bar; }
+  .ed-stage { grid-area: stage; padding: var(--s-8); }
+  .ed-panel {
+    grid-area: panel;
+    max-height: none;
+    border-top: 0; border-left: 1px solid var(--line);
+  }
+  .ed-body { padding-inline: var(--s-6); }
+  .ed-cta { padding-inline: var(--s-6); }
+}

@@ -1,0 +1,56 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<meta name="theme-color" content="#000000" />
+<meta name="description" content="Mestiza Lab — criação e publicação de conteúdo do estúdio." />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Mestiza Lab" />
+<title>Mestiza Lab</title>
+
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+<link rel="apple-touch-icon" href="assets/logo/logo-site-flat-tight.png" />
+<link rel="manifest" href="manifest.webmanifest" />
+
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/stix-two-text-normal-latin.woff2" crossorigin />
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/spline-sans-mono-normal-latin.woff2" crossorigin />
+
+<link rel="stylesheet" href="css/fonts.css" />
+<link rel="stylesheet" href="css/tokens.css" />
+<link rel="stylesheet" href="css/base.css" />
+<link rel="stylesheet" href="css/motion.css" />
+<link rel="stylesheet" href="css/app.css" />
+<link rel="stylesheet" href="css/editor.css" />
+
+<style>
+  /* Splash: fica no ar até o main.js decidir gate ou app.
+     Sem isso o primeiro paint mostra uma tela preta vazia. */
+  #boot {
+    position: fixed; inset: 0; z-index: 900;
+    display: grid; place-items: center;
+    background: var(--bg);
+    transition: opacity 480ms var(--ease), visibility 480ms;
+  }
+  #boot.is-out { opacity: 0; visibility: hidden; }
+  #boot .mark { width: min(46vw, 170px); opacity: 0; animation: boot-in 900ms var(--ease) 80ms forwards; }
+  #boot .mark img { width: 100%; filter: brightness(0) invert(1) brightness(0.96) sepia(0.07); }
+  #boot .bar { width: 92px; height: 1px; background: var(--line); margin-top: var(--s-8); overflow: hidden; }
+  #boot .bar i { display: block; height: 100%; width: 40%; background: var(--accent); animation: boot-slide 1.1s var(--ease-soft) infinite; }
+  @keyframes boot-in { to { opacity: 1; } }
+  @keyframes boot-slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(250%); } }
+  noscript { display: block; padding: 2rem; font-family: monospace; color: #f4f1ea; }
+</style>
+
+<div class="grain" aria-hidden="true"></div>
+<div id="app"></div>
+
+<div id="boot">
+  <div style="display:grid;place-items:center">
+    <div class="mark"><img src="assets/logo/logo-site-flat-tight.png" alt="Mestiza" /></div>
+    <div class="bar"><i></i></div>
+  </div>
+</div>
+
+<noscript>Mestiza Lab precisa de JavaScript ativado.</noscript>
+
+<script type="module" src="js/main.js"></script>
