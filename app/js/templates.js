@@ -593,6 +593,12 @@ export const TEMPLATES = [
         // baixo e inversão limpa na foto em cima.
         { id: 'chapa', type: 'rect', name: 'Chapa', fill: C.fg, box: { x: 0, y: 0, w: 1, h: 1 } },
         { ...bleedImage(c.imagem, { grade: { mode: 'bw', amount: 1 } }), box: { x: 0, y: 0, w: 1, h: 0.52 } },
+        // Escurecer a foto não é estética, é o que faz o
+        // difference funcionar: sobre meio-tom ele devolve
+        // meio-tom, e a primeira palavra do título sumia em
+        // cinza sobre cinza. Sobre esta base, inverte limpo.
+        { id: 'scrim-img', type: 'scrim', name: 'Scrim da foto', direction: 'full', color: '#000000',
+          strength: 0.5, box: { x: 0, y: 0, w: 1, h: 0.52 } },
         { id: 'rule-split', type: 'line', name: 'Régua da divisa', orient: 'h', color: C.accent, thickness: 0.004,
           box: { x: 0, y: 0.52, w: 1, h: 0.005 } },
         {
