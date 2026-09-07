@@ -7,6 +7,15 @@
 
 .ed {
   display: grid;
+  /* `100%` e não a coluna implícita `auto`: com `auto`, a
+     largura da coluna é o MAX-CONTENT do item mais largo, e o
+     painel tem uma tira de abas de 453px. O editor inteiro
+     ficava 60px mais largo que a tela, com a última aba
+     ("Formato") fora do alcance do dedo — as guias, a troca
+     de formato e a de template eram inalcançáveis num iPhone.
+     Teste automatizado não pegava: o Playwright rola o
+     elemento até a vista antes de clicar. */
+  grid-template-columns: 100%;
   grid-template-rows: auto 1fr auto;
   height: 100svh;
   overflow: hidden;
@@ -47,6 +56,7 @@
    --------------------------------------------------------- */
 .ed-stage {
   position: relative;
+  min-width: 0;
   display: grid;
   place-items: center;
   padding: var(--s-4);
@@ -135,6 +145,10 @@
    Painel inferior
    --------------------------------------------------------- */
 .ed-panel {
+  /* min-width: 0 é o par obrigatório do `100%` acima. Sem
+     isso o item de grid volta a ter min-width automático
+     (= min-content) e estica a coluna de novo. */
+  min-width: 0;
   border-top: 1px solid var(--line);
   background: var(--bg);
   padding-bottom: var(--safe-b);
@@ -392,7 +406,7 @@
 @media (min-width: 900px) {
   .ed {
     grid-template-rows: auto 1fr;
-    grid-template-columns: 1fr 380px;
+    grid-template-columns: minmax(0, 1fr) 380px;
     grid-template-areas: 'bar bar' 'stage panel';
   }
   .ed-bar { grid-area: bar; }
