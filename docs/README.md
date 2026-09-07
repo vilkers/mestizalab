@@ -9,6 +9,19 @@
 
 ---
 
+## O foco, decidido em 07/09/2026
+
+> **O Mestiza Lab é uma ferramenta de diagramação.** Quem abre já sabe o que vai
+> publicar. O app existe para tirar a peça da cabeça e pôr no formato certo,
+> rápido, dentro do sistema da marca.
+>
+> Toda decisão que o app pede e que não é sobre diagramar é atrito.
+
+Saem: redator IA, briefings, voz e tom, base de conteúdo, módulo financeiro na
+navegação. Ver [`01-FASES.md`](01-FASES.md).
+
+---
+
 ## Onde estamos
 
 **Fase 1 completa. Fase 2 com os três itens de prioridade alta entregues.**
@@ -37,6 +50,7 @@ como o feed mostra**, e **coleções na biblioteca**.
 
 | Arquivo | O que tem |
 |---|---|
+| [`00-PEDIDOS.md`](00-PEDIDOS.md) | **Todos os pedidos do Vilker**, na ordem, com estado e onde foi parar |
 | [`00-VISAO.md`](00-VISAO.md) | A ambição real. Mestiza Lab é o piloto de um produto maior |
 | [`01-FASES.md`](01-FASES.md) | Roadmap por fases, com o que entra em cada uma |
 | [`02-BACKLOG.md`](02-BACKLOG.md) | **Tudo que foi pedido**, com status. Nada se perde aqui |
@@ -48,6 +62,7 @@ como o feed mostra**, e **coleções na biblioteca**.
 | [`08-FERRAMENTAS-IA.md`](08-FERRAMENTAS-IA.md) | Ferramentas de design com IA — o que existe hoje e o que usar |
 | [`09-MANUAL.md`](09-MANUAL.md) | Manual de uso da plataforma, para a equipe |
 | [`10-PLANO-DE-EXECUCAO.md`](10-PLANO-DE-EXECUCAO.md) | A varredura de bugs rodada de verdade, o que foi corrigido e a ordem do que vem |
+| [`11-REVISAO-UX.md`](11-REVISAO-UX.md) | Revisão de experiência do app inteiro: caminhos em número de toques, carga por tela, e os cortes |
 | [`INTEGRACAO-CLAUDE.md`](INTEGRACAO-CLAUDE.md) | Contrato da API e como pedir conteúdo pela conversa |
 | [`../DEPLOY.md`](../DEPLOY.md) | Passo a passo para publicar |
 | [`../CLAUDE.md`](../CLAUDE.md) | Contexto técnico e armadilhas conhecidas |

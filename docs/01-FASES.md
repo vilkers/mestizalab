@@ -1,107 +1,152 @@
-# Fases de execução
+# Plano de execução
 
-Cada fase entrega algo que funciona sozinho. Nenhuma depende de a próxima
-existir para ter valor.
-
----
-
-## ✅ Fase 1 — A plataforma existe *(concluída)*
-
-**Objetivo:** montar e exportar um post pelo celular, com senha, sem depender
-de ninguém.
-
-Entregue: login, fila, 13 templates, 7 formatos, editor visual, export
-PNG/ZIP, export de vídeo com máscara, biblioteca de mídia, legenda, ingestão do
-Claude, briefings, tokens, tela-prévia do financeiro.
-
-**Falta só uma coisa:** o Vilker rodar o [`DEPLOY.md`](../DEPLOY.md). ~15 min.
+**Revisado em 07/09/2026**, depois da decisão de foco. O inventário completo de
+tudo que foi pedido está em [`00-PEDIDOS.md`](00-PEDIDOS.md); a revisão de UX
+que sustenta os cortes está em [`11-REVISAO-UX.md`](11-REVISAO-UX.md).
 
 ---
 
-## 🔵 Fase 2 — Diagramar de verdade *(próxima)*
+## A decisão que reorganiza tudo
 
-**Objetivo:** deixar de ser "preencher template" e passar a ser "diagramar com
-sistema". É a fase que faz a plataforma parecer ferramenta profissional em vez
-de gerador.
+> "Vamos focar apenas no design nesse app e melhorar a usabilidade e foco dele.
+> Isso significa tirar só as funções de pré-texto, vai ser focado em layoutar
+> nossos conteúdos." — Vilker, 07/09
 
-| Entrega | Por quê |
+**O Mestiza Lab é uma ferramenta de diagramação.** Quem abre já sabe o que vai
+publicar. O app existe para tirar a peça da cabeça e pôr no formato certo,
+rápido, dentro do sistema da marca.
+
+Consequência, e é o critério de tudo abaixo:
+**toda decisão que o app pede e que não é sobre diagramar é atrito.**
+
+---
+
+## O que a medição mostrou
+
+Números medidos no app, num viewport de iPhone. Não são estimativas.
+
+| | |
 |---|---|
-| **Grade de diagramação** com colunas, linhas e baseline, visível e alternável | Pedido explícito. Sem grade, mover na mão é chute |
-| **Snap** às colunas, à baseline e à zona segura | É o que transforma arraste em alinhamento |
-| **Feedback numérico** ao arrastar (px, % da coluna) | O DA quer saber onde está, não achar |
-| **Preview de carrossel** em faixa deslizante | Ver o conjunto, não o slide isolado |
-| **Coleções na biblioteca de mídia** (pastas por cliente/projeto/campanha) | Subir o acervo já produzido e achar depois |
-| **Upload em lote** com destino | 40 fotos de uma campanha de uma vez |
-| **Duplicar** post e slide | O caso mais comum: "outro igual, trocando a foto" |
-| **Reordenar slides** arrastando | |
-| **Varredura de bugs e usabilidade** formal | Rotina, não improviso |
+| **A Fila não mostra nenhuma peça inteira antes de rolar** | A primeira linha começa em y=723 e a tabbar cobre a partir de 788. Sobram 65px de uma linha de 119px. São 11 alvos de filtro acima de 5 peças |
+| **O Reels não existe até você adivinhar** | Com a editoria padrão "Institucional", os formatos oferecidos são feed 4:5, 1:1, 9:16, Stories e os dois carrosséis. Reels só aparece depois de trocar a editoria para "Vídeo" |
+| **O painel do editor vazava 60px para fora da tela** | Painel de 453px numa tela de 393. A aba "Formato" era **inalcançável pelo dedo**. ✅ Corrigido em 07/09 |
+| **A aba Estilo pede demais** | Com uma camada de texto selecionada: 30 alvos e 2,9 telas de rolagem num painel de 393px |
+| **Briefings e Studio servem zero** | 14 e 8 alvos, nenhum no caminho de diagramar |
 
-**Depende de:** screenshots do `paulkalkbrenner.net` para calibrar espaçamento
-e comportamento ([`03-PENDENCIAS.md`](03-PENDENCIAS.md)).
-
-**Como saber que acabou:** o Vilker consegue diagramar uma peça fora do
-template padrão sem que ela saia torta.
+**O comprimento dos caminhos não é o problema.** Nenhum passa de 6 toques na
+conta seca: peça existente → exportada custa **3**; peça nova aceitando os
+padrões, **7**; carrossel de 3 slides, **7**. O problema é **largura de tela** —
+a pessoa atravessa telas onde 3 de cada 4 alvos não servem ao que ela veio
+fazer.
 
 ---
 
-## 🔵 Fase 3 — Conteúdo que não é genérico
+# Fase A — O corte *(próxima)*
 
-**Objetivo:** o texto parar de ser o elo fraco.
+Objetivo: o app fazer uma coisa só, e fazer visivelmente.
 
-| Entrega | Por quê |
+### Cortar
+
+| O quê | Por quê | O que se perde |
+|---|---|---|
+| **Aba Briefings** | A rota `/api/intake` já cria o briefing **e monta a peça** — o post cai na Fila com selo "IA". Cortar a tela não corta o caminho, corta a sala de espera | Ler o raciocínio do briefing dentro do app. Ele continua na conversa com o Claude, onde nasceu |
+| **Redator IA — o código, não só a flag** | Desligado ele não custa toque, mas custa **duas explicações, em duas telas, de algo que não existe**. Uma flag é promessa de que um dia se liga; a promessa foi retirada | Nada hoje. Se um dia voltar, volta como decisão nova |
+| **Aba Studio** | Zero função. Dois botões, um deles "Voltar pra fila" — uma tela que oferece botão de voltar sabe que é beco sem saída. O `docs/README.md` já dizia que o financeiro "não pode complicar a estrutura", e **uma aba na tabbar é a estrutura** | A vitrine do módulo futuro. Ela volta quando o módulo existir |
+| **Modos de mistura: 5 → 2** | O próprio `CLAUDE.md` registra que `difference` sobre dourado devolve azul-lavanda, fora da marca. Multiply, screen e overlay nunca foram usados em template nenhum | Nada em uso |
+| **Pesos 400/500/600/700 → 3** | A marca roda em 600. Quatro opções onde há uma decisão | Quase nada |
+| **"Escolher coleção de destino" na Mídia** | O chip de coleção já define o destino ao ser selecionado. O botão é a mesma decisão, duas vezes | Nada |
+
+### Mover
+
+| O quê | Para onde | Por quê |
+|---|---|---|
+| **Legenda** | Aba sai; o campo vai para a **folha de Exportar** — campo único (legenda + hashtags), contador de 2200, botão *Copiar legenda* ao lado de *Salvar imagem* | É texto, mas **não é escrita**: chega pronta, e o app só precisa carregá-la até a área de transferência **quando o Instagram vai abrir**. A necessidade dispara na hora de exportar, não na de diagramar. A aba tinha o pior foco do editor: 3 alvos úteis em 16. Economiza 2 toques no caminho "exportar com a legenda na mão" (6 → 4) |
+| **Editoria** | Deixa de ser pergunta em **Criar**. Continua existindo como dado — é ela que agrupa a Fila e filtra a biblioteca | É a mais abstrata das três perguntas **e é o que esconde o Reels** |
+
+### Simplificar
+
+| O quê | De | Para |
+|---|---|---|
+| **Tabbar** | 5 abas, alvo de 79px | **3 abas** — `FILA · ⊕ CRIAR · MÍDIA` — alvo de ~131px. Ajustes fica onde já está: link no cabeçalho e no rodapé. Não é usado toda semana, logo não é aba |
+| **Abas do editor** | 5–6, tira de 453px numa tela de 393 | **4** — `CONTEÚDO · [VÍDEO] · ESTILO · CAMADAS · FORMATO` sem Legenda: 363px. **A tira para de vazar pela primeira vez** |
+| **Criar** | 3 perguntas antes de ver qualquer coisa | **2** — formato e desenho. E o Reels passa a existir |
+
+**Como saber que a Fase A acabou:** a tabbar tem três alvos, a tira de abas do
+editor cabe sem arrastar, e não existe nenhuma tela no app que não sirva a
+diagramar.
+
+---
+
+# Fase B — A Fila respirar
+
+Objetivo: a primeira coisa que você vê ao abrir é **uma peça**, não um painel
+de filtros.
+
+- A primeira peça aparece **inteira**, sem rolar
+- Os filtros recuam: hoje são 11 alvos acima de 5 peças
+- A folha de contato vira o padrão? *(a decidir olhando)*
+- Duplicar peça — "outra igual, trocando a foto" é o caso mais comum e não existe
+
+---
+
+# Fase C — O editor
+
+Objetivo: onde a equipe passa 90% do tempo, e onde eu fui mais conservador.
+
+- **Tratamento editorial**, como foi feito na Fila
+- **Aba Estilo**: 30 alvos e 2,9 telas viram um painel que cabe
+- **Medida em px ao arrastar** — a grade imanta mas não diz onde você está
+- **Reordenar slides arrastando**
+- Duplicar slide · alinhar e distribuir · bloquear camada
+
+---
+
+# Fase D — Publicar
+
+Cinco passos, sem cartão, pelo celular ([`../DEPLOY.md`](../DEPLOY.md)).
+**Parado no passo 2** — criar o banco D1 e mandar o Database ID.
+
+Sem isso, tudo acima roda só na demonstração.
+
+---
+
+# Fase E — O que depende do Vilker
+
+| O quê | O que eu preciso |
 |---|---|
-| **Voz, tom e termos** documentados | Sem isso, todo texto tende ao lugar-comum |
-| **Lista do proibido** | Mais eficaz que a lista do permitido |
-| **Base de conteúdo** — temas, ângulos, provas, casos, números do estúdio | O redator precisa ter de onde puxar. Sem repertório, ele inventa clichê |
-| **Briefing estruturado** que força especificidade | O melhor filtro anti-obviedade é a pergunta, não o prompt |
-| **Templates redesenhados** a partir das suas referências | |
-| **Nova editoria** | |
-| **Redator ligado** (secret + flag) | Só depois dos itens acima |
-| **Rotina de geração** — pauta semanal, variações de formato | |
-
-**Como saber que acabou:** você lê uma legenda gerada e não consegue dizer que
-foi máquina que escreveu.
+| **Redesenhar os templates** | 5–10 referências de diagramação |
+| **Calibrar contra o site de referência** | 5–6 screenshots. `paulkalkbrenner.net` está bloqueado por rede aqui — 5 rotas tentadas |
+| **A editoria nova** | Nome e tom. Tecnicamente já é só dado |
 
 ---
 
-## 💭 Fase 4 — O produto
+# Depois
 
-**Objetivo:** o que o estúdio vende. Ver [`07-GUIDE-DE-MARCA.md`](07-GUIDE-DE-MARCA.md).
-
-| Entrega |
-|---|
-| Multi-marca: cada cliente com sua paleta, tipos, grade, templates e acervo |
-| Guide de marca virtual: as regras vivas, navegáveis, ao lado da ferramenta |
-| Papéis por marca (dono, editor, visualizador) |
-| Onboarding de marca nova sem tocar em código |
-| Domínio próprio por cliente |
-| Cobrança |
-
-**Pré-requisito real:** as Fases 2 e 3 rodando com a Mestiza por alguns meses.
-Vender antes de a gente mesmo usar é o caminho mais curto para um produto que
-não resolve nada.
+| | |
+|---|---|
+| **Manual como página** dentro do app | Existe como `09-MANUAL.md` |
+| **Pitch com prints** | Serve à equipe, a clientes e ao produto futuro |
+| **Travar contra regressão** | A varredura vira `npm test`. Medir performance em aparelho antigo |
+| **Guide de marca vendável** | O produto. `07-GUIDE-DE-MARCA.md`. Pré-requisito real: usar o Lab por alguns meses |
+| **Migrar para hospedagem própria** | Só com motivo. A stack atual custa R$ 0 e não tem servidor para cair |
 
 ---
 
-## ⚙️ Satélite — módulo financeiro do estúdio
+# Satélite — fora do produto
 
-**Fora do produto, por decisão explícita.** Contas a pagar, recebimentos,
-gastos, fechamento, orçamentos. Vive na mesma plataforma e na mesma senha por
-conveniência, em módulo isolado, sem tocar na estrutura do resto e sem
-aparecer para cliente nenhum.
-
-Hoje: tela-prévia funcional que mostra o que vem. Entra quando o Vilker quiser
-e definir os campos.
+**Módulo financeiro do estúdio.** Contas a pagar, recebimentos, gastos,
+fechamento, orçamentos. Decisão do Vilker: não faz parte do que vai ser
+vendido, e a partir de 07/09 **também não ocupa aba**. Volta como módulo
+separado, na mesma senha, quando ele quiser e definir os campos.
 
 ---
 
-## Ordem sugerida das próximas sessões
+## A ordem, em uma linha
 
-1. Deploy da Fase 1 (Vilker, 15 min) + screenshots do site de referência
-2. Grade + snap + feedback numérico
-3. Preview de carrossel + coleções de mídia
-4. Varredura de bugs e usabilidade
-5. Manual e pitch
-6. Voz e tom (com o Vilker) + base de conteúdo
-7. Redesenho dos templates com as referências dele
-8. Redator ligado
+```
+A. cortar  →  B. a Fila respirar  →  D. publicar  →  C. o editor  →  E. o desenho
+```
+
+**D vem antes de C de propósito.** Depois do corte e da Fila, o que mais ensina
+é o app na mão da equipe, num aparelho de verdade, com rede de verdade. O
+editor é a maior obra do projeto e não vale fazê-la sem esse retorno.

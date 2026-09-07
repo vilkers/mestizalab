@@ -8,8 +8,14 @@
 > Agentes deste projeto (em `.claude/agents/`): `diretor-de-arte`,
 > `qa-mestiza`, `redator-mestiza`, `template-smith`.
 
-Plataforma de criação de conteúdo do estúdio **Mestiza** (`mestiza.work`).
+Ferramenta de **diagramação** do estúdio **Mestiza** (`mestiza.work`).
 Interlocutor: **Vilker Silva**, diretor de arte publicitário sênior.
+
+**O foco, decidido em 07/09/2026:** o app NÃO escreve. Quem abre já sabe o que
+vai publicar; a ferramenta existe para pôr a peça no formato certo, dentro do
+sistema da marca. Toda decisão que o app pede e que não é sobre diagramar é
+atrito. Redator, briefings, voz e tom e base de conteúdo estão **cortados** —
+não são funcionalidade adormecida, são decididos contra.
 
 O tom de tudo aqui — código, texto de interface, documentação — é o de estúdio
 de criação, não o de produto SaaS. Nada de "Oops!", nada de emoji na interface,
